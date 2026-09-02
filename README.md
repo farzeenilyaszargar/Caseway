@@ -13,6 +13,13 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+For live Legal Desk responses, create `.env.local`:
+
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-5.6
+```
+
 ## Product Routes
 
 - `/` overview and architecture summary

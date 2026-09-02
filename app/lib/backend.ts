@@ -8,6 +8,10 @@ export type ApiError = {
 export type ChatRequest = {
   message?: string;
   matterType?: string;
+  conversation?: Array<{
+    role: "assistant" | "user";
+    text: string;
+  }>;
 };
 
 export type ConsultationRequest = {
@@ -93,6 +97,88 @@ export function createChatResponse(body: ChatRequest) {
         .map((service) => service.name),
       disclaimer:
         "This guidance is for Indian legal procedures and should be reviewed by a qualified advocate.",
+      createdAt: new Date().toISOString(),
+    },
+  };
+}
+
+export async function createOpenAIChatResponse(body: ChatRequest) {
+  const message = body.message?.trim();
+  if (!message) {
+    return { ok: false as const, error: badRequest("Message is required.", "message") };
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return createChatResponse(body);
+  }
+
+  const matterType = body.matterType || inferMatterType(message);
+  const nextSteps = makeNextSteps(matterType);
+  const model = process.env.OPENAI_MODEL || "gpt-5.6";
+  const recentConversation = (body.conversation || [])
+    .slice(-8)
+    .map((item) => `${item.role === "user" ? "User" : "Legal Desk"}: ${item.text}`)
+    .join("\n");
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      instructions:
+        "You are NyayLink Legal Desk, a careful Indian legal information assistant. Provide practical, concise guidance for Indian legal procedures. Do not claim to be a lawyer, do not draft final filings as legal advice, and always recommend review by an enrolled advocate for filings, notices, deadlines, criminal matters, or court strategy. Use plain English with occasional Hindi labels only when natural.",
+      input: [
+        recentConversation ? `Recent conversation:\n${recentConversation}` : "",
+        `Current user message:\n${message}`,
+        `Detected matter type: ${matterType}`,
+        "Return a clear answer with: key issue, documents to collect, immediate next steps, and when to consult an advocate.",
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
+      max_output_tokens: 700,
+    }),
+  });
+
+  const data = (await response.json()) as {
+    output_text?: string;
+    error?: { message?: string };
+    output?: Array<{
+      content?: Array<{ text?: string; type?: string }>;
+    }>;
+  };
+
+  if (!response.ok) {
+    throw new Error(data.error?.message || "OpenAI request failed.");
+  }
+
+  const reply =
+    data.output_text ||
+    data.output
+      ?.flatMap((item) => item.content || [])
+      .map((content) => content.text)
+      .filter(Boolean)
+      .join("\n") ||
+    makeReply(message);
+
+  return {
+    ok: true as const,
+    data: {
+      id: `chat_${Date.now()}`,
+      reply,
+      matterType,
+      confidence: matterType === "General" ? 0.7 : 0.9,
+      nextSteps,
+      recommendedTools: services
+        .filter((service) => shouldRecommendTool(service.name, message, matterType))
+        .map((service) => service.name),
+      disclaimer:
+        "This guidance is for Indian legal procedures and should be reviewed by a qualified advocate.",
+      model,
+      provider: "openai",
       createdAt: new Date().toISOString(),
     },
   };

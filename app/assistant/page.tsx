@@ -33,7 +33,7 @@ export default function AssistantPage() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({ message: trimmed, conversation: messages }),
       });
       const data = (await response.json()) as {
         reply?: string;
@@ -41,6 +41,8 @@ export default function AssistantPage() {
         confidence?: number;
         nextSteps?: string[];
         recommendedTools?: string[];
+        provider?: string;
+        model?: string;
         error?: string;
       };
 
@@ -61,7 +63,7 @@ export default function AssistantPage() {
         ...current,
         { role: "assistant", text: `${data.reply}\n\n${details}` },
       ]);
-      setBackendStatus("Guidance prepared");
+      setBackendStatus(data.provider === "openai" ? "Live guidance prepared" : "Guidance prepared");
     } catch {
       setMessages((current) => [
         ...current,

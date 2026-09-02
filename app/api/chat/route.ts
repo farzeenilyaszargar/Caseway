@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createChatResponse, type ChatRequest } from "../../lib/backend";
+import { createChatResponse, createOpenAIChatResponse, type ChatRequest } from "../../lib/backend";
 
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => ({}))) as ChatRequest;
-  const result = createChatResponse(body);
+  const result = await createOpenAIChatResponse(body).catch(() => createChatResponse(body));
 
   if (!result.ok) {
     return NextResponse.json(result.error, { status: 400 });
