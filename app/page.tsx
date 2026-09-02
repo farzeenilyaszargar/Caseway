@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppShell, LegalDisclaimer } from "./components/AppShell";
+import { LegalWorkflowGraphic } from "./components/LegalGraphics";
 
 const sections = [
   {
@@ -9,6 +10,7 @@ const sections = [
     description:
       "Collect matter type, urgency, city, budget, and facts to generate a structured brief.",
     stats: "Smart triage",
+    tone: "bg-[#0f766e]",
   },
   {
     title: "Legal Desk",
@@ -17,6 +19,7 @@ const sections = [
     description:
       "Ask Indian-law questions, get procedure checklists, and prepare a concise advocate brief.",
     stats: "Guided chat",
+    tone: "bg-[#334155]",
   },
   {
     title: "Find Lawyers",
@@ -25,6 +28,7 @@ const sections = [
     description:
       "Browse advocates by city, practice area, consultation price, rating, and urgency.",
     stats: "₹799+ consults",
+    tone: "bg-[#b45309]",
   },
   {
     title: "Case Tracker",
@@ -33,6 +37,7 @@ const sections = [
     description:
       "Show active matters, deadlines, document lists, timeline status, and case progress.",
     stats: "Matter ops",
+    tone: "bg-[#475569]",
   },
   {
     title: "Workflow Tools",
@@ -41,6 +46,7 @@ const sections = [
     description:
       "Explore OCR, document scanning, legal notices, income tax filing, and court-step workflows.",
     stats: "Platform tools",
+    tone: "bg-[#0f766e]",
   },
 ];
 
@@ -56,38 +62,51 @@ const platformCapabilities = [
 export default function Home() {
   return (
     <AppShell>
-      <section className="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#b45309]">
+      <section className="mx-auto grid max-w-7xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)] lg:px-8">
+        <div className="premium-card paper-surface rounded-lg border border-slate-200 p-5 sm:p-8">
+          <div className="inline-flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#b45309]">
+            <span className="h-2 w-2 rounded-full bg-[#b45309]" />
             Indian legal help desk
-          </p>
-          <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight tracking-normal sm:text-5xl">
-            Resolve legal questions, prepare documents, and reach the right advocate.
+          </div>
+          <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.02] tracking-normal text-slate-950 sm:text-6xl">
+            Legal help that moves from facts to action.
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-            NyayLink is a full-stack legal services platform for Indian citizens, split into
-            clear sections for guided intake, consultation discovery, case tracking, and legal
-            workflow tools.
+          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600">
+            NyayLink gives citizens a structured path through intake, document review, advocate
+            discovery, consultation booking, and matter tracking.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="rounded-md bg-[#0f766e] px-4 py-3 text-sm font-semibold text-white" href="/intake">
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link className="rounded-md bg-[#0f766e] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-teal-900/15 transition hover:bg-[#0b625c]" href="/intake">
               Start guided intake
             </Link>
-            <Link className="rounded-md border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800" href="/lawyers">
+            <Link className="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 shadow-sm transition hover:border-slate-500" href="/lawyers">
               Find consultation
             </Link>
           </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            {[
+              ["24x7", "legal intake desk"],
+              ["9", "service endpoints"],
+              ["6", "product sections"],
+            ].map(([value, label]) => (
+              <div key={label} className="rounded-md border border-slate-200 bg-white/82 p-4">
+                <p className="text-3xl font-black text-slate-950">{value}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-500">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <LegalDisclaimer />
+        <LegalWorkflowGraphic />
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-8 sm:px-6 lg:grid-cols-3 lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-8 sm:px-6 lg:grid-cols-5 lg:px-8">
         {sections.map((section) => (
           <Link
             key={section.href}
             href={section.href}
-            className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-500 hover:shadow-md"
+            className="route-card premium-card group rounded-lg border border-slate-200 p-5 transition hover:-translate-y-1 hover:border-teal-500"
           >
+            <div className={`route-strip mb-5 h-1.5 rounded-full ${section.tone}`} />
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold">{section.title}</h2>
@@ -98,30 +117,13 @@ export default function Home() {
               </span>
             </div>
             <p className="mt-5 text-sm leading-6 text-slate-600">{section.description}</p>
-            <p className="mt-6 text-sm font-bold text-[#0f766e]">Open section</p>
+            <p className="mt-6 text-sm font-black text-[#0f766e]">Open section</p>
           </Link>
         ))}
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="grid gap-3 rounded-lg border border-slate-200 bg-[#0f172a] p-5 text-white sm:grid-cols-3">
-          <div>
-            <p className="text-3xl font-bold">24x7</p>
-            <p className="text-sm text-slate-300">legal intake desk</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold">9</p>
-            <p className="text-sm text-slate-300">service endpoints</p>
-          </div>
-          <div>
-            <p className="text-3xl font-bold">6</p>
-            <p className="text-sm text-slate-300">product sections</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="mx-auto grid max-w-7xl gap-5 px-4 pb-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8">
+        <div className="premium-card rounded-lg border border-slate-200 bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
@@ -146,6 +148,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+        <LegalDisclaimer />
       </section>
     </AppShell>
   );

@@ -49,7 +49,7 @@ export default function CasesPage() {
   return (
     <AppShell>
       <section className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="premium-card paper-surface rounded-lg border border-slate-200 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">Case tracker</p>
           <h1 className="mt-1 text-3xl font-bold">Matter dashboard</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
@@ -61,7 +61,7 @@ export default function CasesPage() {
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-5 sm:px-6 md:grid-cols-3 lg:px-8">
         {[["Total matters", summary.count], ["Open cases", summary.openCases], ["Next deadline", summary.nextDeadline]].map(([label, value]) => (
-          <div key={label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div key={label} className="premium-card rounded-lg border border-slate-200 bg-white p-5">
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">{label}</p>
             <p className="mt-2 text-2xl font-bold">{value}</p>
           </div>
@@ -70,7 +70,7 @@ export default function CasesPage() {
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 pb-8 sm:px-6 lg:grid-cols-3 lg:px-8">
         {cases.map((caseFile) => (
-          <article key={caseFile.id} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <article key={caseFile.id} className="premium-card rounded-lg border border-slate-200 bg-white p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-bold">{caseFile.title}</h2>

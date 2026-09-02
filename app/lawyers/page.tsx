@@ -92,7 +92,7 @@ export default function LawyersPage() {
   return (
     <AppShell>
       <section className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="premium-card paper-surface rounded-lg border border-slate-200 p-5 sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
             Vakil Connect
           </p>
@@ -115,7 +115,7 @@ export default function LawyersPage() {
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-5 px-4 pb-8 sm:px-6 lg:grid-cols-[310px_minmax(0,1fr)] lg:px-8">
-        <aside className="h-fit rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <aside className="premium-card h-fit rounded-lg border border-slate-200 bg-white p-5">
           <h2 className="text-lg font-bold">Filters</h2>
           <div className="mt-4 space-y-4">
             <label className="block text-xs font-semibold text-slate-600">
@@ -174,7 +174,7 @@ export default function LawyersPage() {
           ) : (
             <div className="grid gap-4 xl:grid-cols-2">
               {filteredLawyers.map((lawyer) => (
-                <article key={lawyer.id} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <article key={lawyer.id} className="premium-card rounded-lg border border-slate-200 bg-white p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h2 className="text-lg font-bold">{lawyer.name}</h2>

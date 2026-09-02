@@ -84,8 +84,8 @@ export default function AssistantPage() {
   return (
     <AppShell>
       <section className="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:px-8">
-        <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 p-4 sm:p-6">
+        <div className="premium-card rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="paper-surface border-b border-slate-200 p-4 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
@@ -114,7 +114,7 @@ export default function AssistantPage() {
             </div>
           </div>
 
-          <div className="h-[520px] overflow-y-auto p-4 sm:p-6">
+          <div className="h-[520px] overflow-y-auto bg-white/78 p-4 sm:p-6">
             <div className="space-y-3">
               {messages.map((message, index) => (
                 <div
@@ -156,7 +156,7 @@ export default function AssistantPage() {
 
         <div className="space-y-5">
           <LegalDisclaimer />
-          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="premium-card rounded-lg border border-slate-200 bg-white p-5">
             <h2 className="text-lg font-bold">After legal intake</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               Once the issue is structured, route the user to a relevant lawyer, document workflow,

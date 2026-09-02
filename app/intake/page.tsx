@@ -69,7 +69,7 @@ export default function IntakePage() {
   return (
     <AppShell>
       <section className="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[420px_minmax(0,1fr)] lg:px-8">
-        <form onSubmit={submitIntake} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <form onSubmit={submitIntake} className="premium-card paper-surface rounded-lg border border-slate-200 p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">Guided intake</p>
           <h1 className="mt-1 text-3xl font-bold">Create a legal brief</h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -108,7 +108,7 @@ export default function IntakePage() {
           </div>
         </form>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="premium-card rounded-lg border border-slate-200 bg-white p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#b45309]">Triage output</p>
           {result ? (
             <div className="mt-4 space-y-5">
