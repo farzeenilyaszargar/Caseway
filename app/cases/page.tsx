@@ -19,7 +19,7 @@ type CaseFile = {
 export default function CasesPage() {
   const [cases, setCases] = useState<CaseFile[]>([]);
   const [summary, setSummary] = useState({ count: 0, openCases: 0, nextDeadline: "Loading" });
-  const [status, setStatus] = useState("Calling /api/cases...");
+  const [status, setStatus] = useState("Loading case dashboard...");
 
   useEffect(() => {
     async function loadCases() {
@@ -38,7 +38,7 @@ export default function CasesPage() {
           openCases: data.openCases || 0,
           nextDeadline: data.nextDeadline || "None",
         });
-        setStatus("Case dashboard served by /api/cases");
+        setStatus("Case dashboard ready");
       } catch {
         setStatus("Could not load case dashboard.");
       }

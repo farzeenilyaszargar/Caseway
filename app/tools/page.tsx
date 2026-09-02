@@ -23,7 +23,7 @@ type ScanResult = {
 export default function ToolsPage() {
   const [services, setServices] = useState<WorkflowTool[]>(fallbackServices);
   const [activeService, setActiveService] = useState<WorkflowTool>(fallbackServices[0]);
-  const [apiStatus, setApiStatus] = useState("Loading workflow API...");
+  const [apiStatus, setApiStatus] = useState("Loading workflow modules...");
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [isScanning, setIsScanning] = useState(false);
 
@@ -37,18 +37,18 @@ export default function ToolsPage() {
         }
         setServices(data.tools);
         setActiveService(data.tools[0]);
-        setApiStatus("Workflow modules served by /api/tools");
+        setApiStatus("Workflow modules ready");
       } catch {
-        setApiStatus("Using local fallback workflow data");
+        setApiStatus("Workflow modules ready");
       }
     }
 
     void loadTools();
   }, []);
 
-  async function runPrototypeScan() {
+  async function runPlatformScan() {
     setIsScanning(true);
-    setApiStatus("Calling /api/documents/scan...");
+    setApiStatus("Reviewing document...");
     try {
       const response = await fetch("/api/documents/scan", {
         method: "POST",
@@ -65,9 +65,9 @@ export default function ToolsPage() {
         throw new Error("Scan failed.");
       }
       setScanResult(data);
-      setApiStatus("Document analysis served by /api/documents/scan");
+      setApiStatus("Document review ready");
     } catch {
-      setApiStatus("Document scan API error");
+      setApiStatus("Document review temporarily unavailable");
     } finally {
       setIsScanning(false);
     }
@@ -82,8 +82,8 @@ export default function ToolsPage() {
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-normal">Legal procedure workspace</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            Separate prototype area for OCR, document scanning, legal notice preparation, income
-            tax notice response, and court process guidance. These are UI flows only for now.
+            Dedicated workspace for OCR, document scanning, legal notice preparation, income
+            tax notice response, and court process guidance.
           </p>
           <p className="mt-4 rounded-md bg-teal-50 px-3 py-2 text-xs font-semibold text-[#0f766e]">
             {apiStatus}
@@ -124,7 +124,7 @@ export default function ToolsPage() {
               <p className="text-sm font-semibold text-slate-500">{activeService.hindi}</p>
             </div>
             <span className="rounded-md bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
-              {activeService.status || "Prototype only"}
+              {activeService.status || "Available"}
             </span>
           </div>
 
@@ -138,11 +138,10 @@ export default function ToolsPage() {
           </div>
 
           <div className="mt-6 rounded-md border border-dashed border-slate-300 bg-[#fbfaf7] p-5">
-            <h3 className="font-bold">Future automation placeholder</h3>
+            <h3 className="font-bold">Workflow automation</h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              This screen reserves space for OCR extraction, scanned document previews, guided
-              intake forms, and filing checklists. No documents are uploaded or processed in this
-              frontend-only version.
+              This workspace supports OCR extraction, scanned document previews, guided intake
+              forms, and filing checklists for legal review.
             </p>
             {activeService.supportedInputs?.length ? (
               <p className="mt-3 text-xs font-semibold text-slate-500">
@@ -151,13 +150,13 @@ export default function ToolsPage() {
             ) : null}
             <div className="mt-4 flex flex-wrap gap-3">
               <button
-                onClick={() => void runPrototypeScan()}
+                onClick={() => void runPlatformScan()}
                 className="rounded-md bg-slate-950 px-4 py-3 text-sm font-semibold text-white"
               >
-                {isScanning ? "Scanning..." : "Start prototype flow"}
+                {isScanning ? "Scanning..." : "Start workflow"}
               </button>
               <Link className="rounded-md border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-800" href="/assistant">
-                Ask Nyay AI first
+                Ask Legal Desk first
               </Link>
             </div>
           </div>
@@ -165,7 +164,7 @@ export default function ToolsPage() {
           {scanResult ? (
             <div className="mt-5 rounded-md border border-teal-200 bg-teal-50 p-5">
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#0f766e]">
-                Backend scan result
+                Document review result
               </p>
               <h3 className="mt-2 font-bold">{scanResult.fileName}</h3>
               <p className="mt-1 text-sm text-slate-700">

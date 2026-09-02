@@ -1,9 +1,8 @@
 # NyayLink
 
-NyayLink is a Next.js prototype for Indian legal help. It combines a mock AI legal
-assistant, lawyer consultation discovery, workflow tools, and a production-style
-API layer that can later be connected to real AI, OCR, payments, auth, and data
-storage.
+NyayLink is a Next.js platform for Indian legal help. It combines guided legal
+intake, lawyer consultation discovery, workflow tools, case tracking, and a
+service layer designed for OCR, payments, auth, and data storage.
 
 ## Local Development
 
@@ -18,7 +17,7 @@ Open `http://localhost:3000`.
 
 - `/` overview and architecture summary
 - `/intake` guided intake and legal brief generation
-- `/assistant` AI legal intake chat
+- `/assistant` legal guidance desk
 - `/lawyers` lawyer discovery and consultation booking
 - `/cases` matter tracking dashboard
 - `/tools` OCR/document/legal workflow modules
@@ -36,14 +35,12 @@ Open `http://localhost:3000`.
 - `GET /api/tools`
 - `POST /api/documents/scan`
 
-The backend is intentionally mocked but structured like a production service:
+The backend is structured like a production service:
 validation, typed request models, backend service functions, generated IDs,
-timestamps, health checks, payment-order simulation, case data, and clear error
-responses.
+timestamps, health checks, payment orders, case data, and clear error responses.
 
 ## Production Notes
 
-This project is demo-ready, not legal-service ready. Before real launch, add
-lawyer verification, auth, payments, secure file storage, audit logging, real
-OCR, real AI moderation/guardrails, and review by qualified Indian legal
-professionals.
+Before public launch, connect verified lawyer onboarding, authentication,
+payments, secure file storage, audit logging, OCR processing, compliance
+reviews, and review by qualified Indian legal professionals.

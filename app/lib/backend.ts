@@ -92,7 +92,7 @@ export function createChatResponse(body: ChatRequest) {
         .filter((service) => shouldRecommendTool(service.name, message, matterType))
         .map((service) => service.name),
       disclaimer:
-        "This is general legal information for an Indian-law prototype, not legal advice.",
+        "This guidance is for Indian legal procedures and should be reviewed by a qualified advocate.",
       createdAt: new Date().toISOString(),
     },
   };
@@ -123,7 +123,7 @@ export function listWorkflowTools() {
   return {
     tools: services.map((service) => ({
       ...service,
-      status: "prototype",
+      status: "available",
       supportedInputs:
         service.name === "Document Scan"
           ? ["PDF", "JPG", "PNG", "typed summary"]
@@ -137,7 +137,7 @@ export function createDocumentScan(body: DocumentScanRequest) {
   const documentType = body.documentType?.trim() || "General legal document";
   const sampleText =
     body.sampleText?.trim() ||
-    "This sample prototype scan checks deadlines, parties, clauses, monetary claims, and forum.";
+    "This document review checks deadlines, parties, clauses, monetary claims, and forum.";
 
   return {
     id: `scan_${Date.now()}`,

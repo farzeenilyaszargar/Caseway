@@ -10,7 +10,7 @@ export async function GET() {
       "guided-intake",
       "lawyer-search",
       "consultation-booking",
-      "payment-order-simulation",
+      "payment-orders",
       "case-tracking",
       "workflow-tools",
       "document-scan",

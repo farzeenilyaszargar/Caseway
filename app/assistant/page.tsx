@@ -14,12 +14,12 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      text: "Namaste. I am Nyay AI, a prototype legal guide for Indian procedures. Tell me your issue, or choose a prompt, and I will organize the next steps before you consult an advocate.",
+      text: "Namaste. I am the Legal Desk for Indian procedures. Tell me your issue, or choose a prompt, and I will organize the next steps before you consult an advocate.",
     },
   ]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [backendStatus, setBackendStatus] = useState("Backend ready");
+  const [backendStatus, setBackendStatus] = useState("Ready");
 
   async function sendMessage(text = input) {
     const trimmed = text.trim();
@@ -27,7 +27,7 @@ export default function AssistantPage() {
     setMessages((current) => [...current, { role: "user", text: trimmed }]);
     setInput("");
     setIsSending(true);
-    setBackendStatus("Calling /api/chat...");
+    setBackendStatus("Preparing guidance...");
 
     try {
       const response = await fetch("/api/chat", {
@@ -61,16 +61,16 @@ export default function AssistantPage() {
         ...current,
         { role: "assistant", text: `${data.reply}\n\n${details}` },
       ]);
-      setBackendStatus("Response served by /api/chat");
+      setBackendStatus("Guidance prepared");
     } catch {
       setMessages((current) => [
         ...current,
         {
           role: "assistant",
-          text: "I could not reach the chat API. Please try again in a moment.",
+          text: "I could not prepare guidance right now. Please try again in a moment.",
         },
       ]);
-      setBackendStatus("API error");
+      setBackendStatus("Connection issue");
     } finally {
       setIsSending(false);
     }
@@ -89,9 +89,9 @@ export default function AssistantPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
-                  Nyay AI
+                  Legal Desk
                 </p>
-                <h1 className="text-2xl font-bold">Indian law assistant</h1>
+                <h1 className="text-2xl font-bold">Indian legal desk</h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                   Ask about notices, consumer complaints, tax responses, property documents, tenancy,
                   and procedural next steps.
@@ -137,7 +137,7 @@ export default function AssistantPage() {
 
           <form onSubmit={onSubmit} className="border-t border-slate-200 p-4 sm:p-6">
             <label className="sr-only" htmlFor="legal-query">
-              Ask Nyay AI
+              Ask Legal Desk
             </label>
             <div className="flex gap-2">
               <input
@@ -157,7 +157,7 @@ export default function AssistantPage() {
         <div className="space-y-5">
           <LegalDisclaimer />
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold">After AI intake</h2>
+            <h2 className="text-lg font-bold">After legal intake</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               Once the issue is structured, route the user to a relevant lawyer, document workflow,
               or procedure checklist.

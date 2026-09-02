@@ -172,7 +172,7 @@ export const caseFiles = [
     owner: "Priya S.",
     timeline: [
       "Notice uploaded and OCR summary created",
-      "AI intake classified the matter as Property",
+      "legal intake classified the matter as Property",
       "Advocate reply draft under review",
       "Consultation follow-up pending",
     ],
@@ -218,7 +218,7 @@ export function makeReply(input: string) {
     return "For a consumer complaint in India, start with invoices, warranty records, messages, and a written demand to the seller. If unresolved, the route usually moves to the District Consumer Commission based on claim value and location. I can prepare a filing checklist and then suggest consumer-law advocates nearby.";
   }
   if (lower.includes("tax") || lower.includes("income")) {
-    return "For an income tax notice, first identify the section, assessment year, response deadline, and mismatch reason. Keep Form 26AS, AIS/TIS, bank statements, salary/business records, and prior ITR ready. This prototype can map the checklist, but a CA or tax advocate should review before filing.";
+    return "For an income tax notice, first identify the section, assessment year, response deadline, and mismatch reason. Keep Form 26AS, AIS/TIS, bank statements, salary/business records, and prior ITR ready. This platform can map the checklist, but a CA or tax advocate should review before filing.";
   }
   if (lower.includes("property") || lower.includes("agreement")) {
     return "For property documents, scan the title chain, sale deed, encumbrance certificate, khata or municipal records, tax receipts, and possession clauses. I would flag missing signatures, dispute clauses, stamp duty details, and registration references before lawyer review.";

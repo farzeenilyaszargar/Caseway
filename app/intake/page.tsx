@@ -31,7 +31,7 @@ export default function IntakePage() {
     summary: "",
   });
   const [result, setResult] = useState<IntakeResult | null>(null);
-  const [status, setStatus] = useState("Loading intake schema...");
+  const [status, setStatus] = useState("Loading intake form...");
 
   useEffect(() => {
     async function loadSchema() {
@@ -40,7 +40,7 @@ export default function IntakePage() {
         const data = (await response.json()) as { questions?: Question[] };
         if (!response.ok || !data.questions) throw new Error("Schema failed.");
         setQuestions(data.questions);
-        setStatus("Schema served by /api/intake");
+        setStatus("Intake form ready");
       } catch {
         setStatus("Could not load intake schema.");
       }
@@ -50,7 +50,7 @@ export default function IntakePage() {
 
   async function submitIntake(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("Submitting intake to /api/intake...");
+    setStatus("Reviewing intake...");
     try {
       const response = await fetch("/api/intake", {
         method: "POST",
@@ -145,13 +145,13 @@ export default function IntakePage() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Link href="/assistant" className="rounded-md bg-[#0f766e] px-4 py-3 text-sm font-semibold text-white">Continue in Nyay AI</Link>
+                <Link href="/assistant" className="rounded-md bg-[#0f766e] px-4 py-3 text-sm font-semibold text-white">Continue in Legal Desk</Link>
                 <Link href="/lawyers" className="rounded-md border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-800">Book consultation</Link>
               </div>
             </div>
           ) : (
             <div className="mt-4 rounded-md border border-dashed border-slate-300 bg-slate-50 p-8 text-sm leading-6 text-slate-600">
-              Submit the intake form to generate a backend-powered legal brief, document checklist, and advocate shortlist.
+              Submit the intake form to generate a legal brief, document checklist, and advocate shortlist.
             </div>
           )}
         </div>

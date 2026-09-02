@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { href: "/", label: "Overview" },
   { href: "/intake", label: "Intake" },
-  { href: "/assistant", label: "Nyay AI" },
+  { href: "/assistant", label: "Legal Desk" },
   { href: "/lawyers", label: "Find Lawyers" },
   { href: "/cases", label: "Cases" },
   { href: "/tools", label: "Tools" },
@@ -25,7 +25,7 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
             </div>
             <div>
               <p className="text-base font-semibold leading-tight">NyayLink</p>
-              <p className="text-xs text-slate-500">AI law guide + Vakil Connect</p>
+              <p className="text-xs text-slate-500">Legal guidance + Vakil Connect</p>
             </div>
           </Link>
           <nav className="hidden items-center gap-1 rounded-md border border-slate-200 bg-white p-1 text-sm font-medium text-slate-600 md:flex">
@@ -70,10 +70,10 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
 export function LegalDisclaimer() {
   return (
     <aside className="rounded-lg border border-amber-200 bg-[#fff8eb] p-4 text-sm leading-6 text-amber-950">
-      <p className="font-semibold">Legal information only</p>
+      <p className="font-semibold">Important legal notice</p>
       <p className="mt-1">
-        Nyay AI is a prototype and does not replace advice from an enrolled advocate. Deadlines,
-        court rules, and facts matter. Please verify before filing or replying.
+        NyayLink provides general legal information and workflow assistance. For filings,
+        deadlines, notices, and court strategy, consult an enrolled advocate.
       </p>
     </aside>
   );

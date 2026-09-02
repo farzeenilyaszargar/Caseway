@@ -12,7 +12,7 @@ export default function LawyersPage() {
   const [selectedLawyer, setSelectedLawyer] = useState<number | null>(null);
   const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>(fallbackLawyers);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiStatus, setApiStatus] = useState("Loaded from /api/lawyers");
+  const [apiStatus, setApiStatus] = useState("Listings ready");
   const [bookingStatus, setBookingStatus] = useState("");
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function LawyersPage() {
 
     async function loadLawyers() {
       setIsLoading(true);
-      setApiStatus("Calling /api/lawyers...");
+      setApiStatus("Searching advocates...");
       try {
         const response = await fetch(`/api/lawyers?${params.toString()}`, {
           signal: controller.signal,
@@ -36,11 +36,11 @@ export default function LawyersPage() {
           throw new Error(data.error || "Lawyer search failed.");
         }
         setFilteredLawyers(data.results);
-        setApiStatus("Results served by /api/lawyers");
+        setApiStatus("Listings updated");
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
           setFilteredLawyers([]);
-          setApiStatus("Search API error");
+          setApiStatus("Search temporarily unavailable");
         }
       } finally {
         setIsLoading(false);
@@ -53,7 +53,7 @@ export default function LawyersPage() {
 
   async function bookConsultation(lawyer: Lawyer) {
     setSelectedLawyer(lawyer.id);
-    setBookingStatus("Creating consultation via /api/consultations...");
+    setBookingStatus("Creating consultation request...");
 
     try {
       const response = await fetch("/api/consultations", {
@@ -82,7 +82,7 @@ export default function LawyersPage() {
       });
       const payment = (await paymentResponse.json()) as { id?: string; status?: string };
       setBookingStatus(
-        `Consultation ${data.status}: ${data.id}. Payment ${payment.status}: ${payment.id}`,
+        `Consultation request created. Payment order ${payment.status}: ${payment.id}`,
       );
     } catch {
       setBookingStatus("Could not create consultation. Please try again.");
@@ -100,7 +100,7 @@ export default function LawyersPage() {
             <div>
               <h1 className="text-3xl font-bold tracking-normal">Find consultation</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                Browse placeholder Indian advocates by city, court proximity, specialty, language,
+                Browse Indian advocates by city, court proximity, specialty, language,
                 price, and availability.
               </p>
             </div>
@@ -169,7 +169,7 @@ export default function LawyersPage() {
         <div>
           {filteredLawyers.length === 0 ? (
             <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">
-              No placeholder lawyers match these filters. Increase the budget or broaden the location.
+              No lawyers match these filters. Increase the budget or broaden the location.
             </div>
           ) : (
             <div className="grid gap-4 xl:grid-cols-2">
