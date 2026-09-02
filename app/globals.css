@@ -48,12 +48,8 @@ button {
 
 .app-canvas {
   background:
-    linear-gradient(90deg, rgb(15 23 42 / 0.035) 1px, transparent 1px),
-    linear-gradient(180deg, rgb(15 23 42 / 0.035) 1px, transparent 1px),
-    radial-gradient(circle at 22% 14%, rgb(180 83 9 / 0.12), transparent 28rem),
-    radial-gradient(circle at 80% 8%, rgb(15 118 110 / 0.13), transparent 32rem),
+    linear-gradient(180deg, #fbfaf7 0%, #f4f1ea 62%, #efebe2 100%),
     #f4f1ea;
-  background-size: 42px 42px, 42px 42px, auto, auto, auto;
 }
 
 .topbar {
@@ -111,4 +107,8 @@ button {
   transform: scaleX(0.34);
   transform-origin: left;
   transition: transform 180ms ease;
+}
+
+.home-minimal {
+  min-height: calc(100vh - 73px);
 }
