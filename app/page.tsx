@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AppShell, LegalDisclaimer } from "./components/AppShell";
+import { AppShell } from "./components/AppShell";
 
 const sections = [
   {
@@ -51,33 +51,41 @@ const platformCapabilities = [
 export default function Home() {
   return (
     <AppShell>
-      <section className="home-minimal mx-auto flex max-w-5xl flex-col items-center justify-center px-4 py-14 text-center sm:px-6 lg:px-8">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#b45309]">
-          Indian legal help desk
-        </p>
-        <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[1.02] tracking-normal text-slate-950 sm:text-6xl">
+      <section className="relative flex min-h-[calc(100vh-73px)] items-center justify-center overflow-hidden bg-slate-950 px-4 py-16 text-center text-white sm:px-6 lg:px-8">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-48"
+          style={{ backgroundImage: "url('/courtroom-bg.png')" }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(7_6_4/0.58),rgb(7_6_4/0.82)),radial-gradient(circle_at_50%_42%,rgb(217_119_6/0.20),transparent_34rem)]" aria-hidden="true" />
+        <div className="relative z-10 mx-auto max-w-5xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
+            Indian legal help desk
+          </p>
+          <h1 className="mt-5 text-4xl font-black leading-[1.02] tracking-normal text-white sm:text-6xl">
             Legal help that moves from facts to action.
-        </h1>
-        <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600">
-          NyayLink gives citizens a structured path through intake, document review, advocate
-          discovery, consultation booking, and matter tracking.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link className="rounded-md bg-[#0f766e] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-teal-900/15 transition hover:bg-[#0b625c]" href="/intake">
-            Start guided intake
-          </Link>
-          <Link className="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 shadow-sm transition hover:border-slate-500" href="/lawyers">
-            Find consultation
-          </Link>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-stone-200">
+            NyayLink gives citizens a structured path through intake, document review, advocate
+            discovery, consultation booking, and matter tracking.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link className="rounded-md bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-black/25 transition hover:bg-amber-400" href="/intake">
+              Start guided intake
+            </Link>
+            <Link className="rounded-md border border-white/35 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white/18" href="/lawyers">
+              Find consultation
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-x-8 gap-y-7 px-4 pb-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-5 lg:px-8">
+      <section className="mx-auto grid max-w-6xl gap-x-8 gap-y-7 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-5 lg:px-8">
         {sections.map((section) => (
           <Link
             key={section.href}
             href={section.href}
-            className="border-t border-slate-300 pt-4 text-left transition hover:border-[#0f766e]"
+            className="border-t border-stone-300 pt-4 text-left transition hover:border-[#8b5a2b]"
           >
             <h2 className="text-base font-bold">{section.title}</h2>
             <p className="mt-1 text-sm font-semibold text-slate-500">{section.hindi}</p>
@@ -86,9 +94,9 @@ export default function Home() {
         ))}
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-8 px-4 pb-16 sm:px-6 lg:grid-cols-[1fr_340px] lg:px-8">
-        <div className="border-t border-slate-300 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#0f766e]">
+      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="border-t border-stone-300 pt-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#8b5a2b]">
             Platform services
           </p>
           <h2 className="mt-2 text-2xl font-bold">Operational service layer</h2>
@@ -101,7 +109,6 @@ export default function Home() {
             {platformCapabilities.join(" · ")}
           </p>
         </div>
-        <LegalDisclaimer />
       </section>
     </AppShell>
   );
