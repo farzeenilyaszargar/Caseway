@@ -70,7 +70,20 @@ export default function LawyersPage() {
       if (!response.ok || !data.id) {
         throw new Error(data.error || "Consultation booking failed.");
       }
-      setBookingStatus(`Consultation ${data.status}: ${data.id}`);
+
+      const paymentResponse = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          consultationId: data.id,
+          amount: lawyer.price,
+          method: "upi",
+        }),
+      });
+      const payment = (await paymentResponse.json()) as { id?: string; status?: string };
+      setBookingStatus(
+        `Consultation ${data.status}: ${data.id}. Payment ${payment.status}: ${payment.id}`,
+      );
     } catch {
       setBookingStatus("Could not create consultation. Please try again.");
     }

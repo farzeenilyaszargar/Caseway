@@ -17,22 +17,29 @@ Open `http://localhost:3000`.
 ## Product Routes
 
 - `/` overview and architecture summary
+- `/intake` guided intake and legal brief generation
 - `/assistant` AI legal intake chat
 - `/lawyers` lawyer discovery and consultation booking
+- `/cases` matter tracking dashboard
 - `/tools` OCR/document/legal workflow modules
 
 ## API Routes
 
 - `GET /api/health`
+- `GET /api/intake`
+- `POST /api/intake`
 - `POST /api/chat`
 - `GET /api/lawyers?city=Delhi&category=Criminal&maxPrice=1200&urgentOnly=true`
 - `POST /api/consultations`
+- `POST /api/payments`
+- `GET /api/cases`
 - `GET /api/tools`
 - `POST /api/documents/scan`
 
 The backend is intentionally mocked but structured like a production service:
 validation, typed request models, backend service functions, generated IDs,
-timestamps, and clear error responses.
+timestamps, health checks, payment-order simulation, case data, and clear error
+responses.
 
 ## Production Notes
 

@@ -137,6 +137,81 @@ export const services = [
 export const categories = ["All", "Property", "Criminal", "Family", "Tax", "Consumer", "Labour"];
 export const cities = ["All cities", "Bengaluru", "Delhi", "Mumbai", "Gurugram", "Hyderabad", "Kolkata"];
 
+export const intakeQuestions = [
+  {
+    id: "matterType",
+    label: "Matter type",
+    options: ["Property", "Family", "Consumer", "Tax", "Criminal", "Labour", "Documentation"],
+  },
+  {
+    id: "urgency",
+    label: "Urgency",
+    options: ["Today", "This week", "This month", "Planning ahead"],
+  },
+  {
+    id: "city",
+    label: "City",
+    options: cities.filter((city) => city !== "All cities"),
+  },
+  {
+    id: "budget",
+    label: "Consultation budget",
+    options: ["Under ₹1,000", "₹1,000 - ₹1,500", "₹1,500 - ₹2,000", "Flexible"],
+  },
+];
+
+export const caseFiles = [
+  {
+    id: "case_kar_1021",
+    title: "Rental notice response",
+    court: "Bengaluru Civil Court",
+    matterType: "Property",
+    status: "Advocate review",
+    nextHearing: "18 Sep 2026",
+    progress: 68,
+    owner: "Priya S.",
+    timeline: [
+      "Notice uploaded and OCR summary created",
+      "AI intake classified the matter as Property",
+      "Advocate reply draft under review",
+      "Consultation follow-up pending",
+    ],
+    documents: ["Rental agreement", "Legal notice", "Payment receipts"],
+  },
+  {
+    id: "case_del_4470",
+    title: "Consumer refund complaint",
+    court: "Delhi District Consumer Commission",
+    matterType: "Consumer",
+    status: "Filing checklist",
+    nextHearing: "Not filed",
+    progress: 42,
+    owner: "Ankit M.",
+    timeline: [
+      "Invoice and email trail collected",
+      "Demand notice checklist generated",
+      "Forum and claim value identified",
+    ],
+    documents: ["Invoice", "Warranty card", "Email thread"],
+  },
+  {
+    id: "case_mum_8832",
+    title: "Income tax notice response",
+    court: "Income Tax e-Filing Portal",
+    matterType: "Tax",
+    status: "Document collection",
+    nextHearing: "Response due 12 Sep 2026",
+    progress: 55,
+    owner: "Neha R.",
+    timeline: [
+      "Notice section and AY captured",
+      "AIS and Form 26AS requested",
+      "Mismatch summary prepared",
+    ],
+    documents: ["Tax notice", "AIS", "Bank statement"],
+  },
+];
+
 export function makeReply(input: string) {
   const lower = input.toLowerCase();
   if (lower.includes("consumer")) {

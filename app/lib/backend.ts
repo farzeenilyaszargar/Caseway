@@ -1,4 +1,4 @@
-import { categories, cities, lawyers, makeReply, services } from "../data";
+import { caseFiles, categories, cities, intakeQuestions, lawyers, makeReply, services } from "../data";
 
 export type ApiError = {
   error: string;
@@ -21,6 +21,20 @@ export type DocumentScanRequest = {
   fileName?: string;
   documentType?: string;
   sampleText?: string;
+};
+
+export type IntakeRequest = {
+  matterType?: string;
+  urgency?: string;
+  city?: string;
+  budget?: string;
+  summary?: string;
+};
+
+export type PaymentRequest = {
+  consultationId?: string;
+  amount?: number;
+  method?: "upi" | "card" | "netbanking";
 };
 
 export function badRequest(error: string, field?: string): ApiError {
@@ -141,6 +155,74 @@ export function createDocumentScan(body: DocumentScanRequest) {
   };
 }
 
+export function getCaseDashboard() {
+  const openCases = caseFiles.filter((file) => file.progress < 100);
+  return {
+    count: caseFiles.length,
+    openCases: openCases.length,
+    nextDeadline: "12 Sep 2026",
+    cases: caseFiles,
+  };
+}
+
+export function getIntakeSchema() {
+  return {
+    questions: intakeQuestions,
+    supportedMatterTypes: categories.filter((category) => category !== "All"),
+  };
+}
+
+export function createIntake(body: IntakeRequest) {
+  if (!body.summary?.trim()) {
+    return { ok: false as const, error: badRequest("Issue summary is required.", "summary") };
+  }
+
+  const matterType = body.matterType || inferMatterType(body.summary);
+  const recommendedLawyers = lawyers
+    .filter((lawyer) => lawyer.specialty === matterType || matterType === "General")
+    .slice(0, 3);
+
+  return {
+    ok: true as const,
+    data: {
+      id: `intake_${Date.now()}`,
+      matterType,
+      urgency: body.urgency || "This week",
+      city: body.city || "Bengaluru",
+      budget: body.budget || "Flexible",
+      summary: body.summary.trim(),
+      triageScore: matterType === "Criminal" || body.urgency === "Today" ? "High" : "Standard",
+      requiredDocuments: makeRequiredDocuments(matterType),
+      recommendedLawyers,
+      createdAt: new Date().toISOString(),
+    },
+  };
+}
+
+export function createPaymentOrder(body: PaymentRequest) {
+  const amount = Number(body.amount || 0);
+  if (!body.consultationId?.trim()) {
+    return { ok: false as const, error: badRequest("consultationId is required.", "consultationId") };
+  }
+  if (!Number.isFinite(amount) || amount < 100) {
+    return { ok: false as const, error: badRequest("A valid amount is required.", "amount") };
+  }
+
+  return {
+    ok: true as const,
+    data: {
+      id: `pay_${Date.now()}`,
+      consultationId: body.consultationId,
+      amount,
+      currency: "INR",
+      method: body.method || "upi",
+      status: "created",
+      upiIntent: `upi://pay?pa=nyaylink@upi&pn=NyayLink&am=${amount}&cu=INR`,
+      createdAt: new Date().toISOString(),
+    },
+  };
+}
+
 function inferMatterType(message: string) {
   const lower = message.toLowerCase();
   if (lower.includes("consumer") || lower.includes("refund") || lower.includes("warranty")) return "Consumer";
@@ -165,6 +247,16 @@ function makeNextSteps(matterType: string) {
     return ["Collect agreement, title records, tax receipts, and notices.", "Check registration and possession clauses.", ...common];
   }
   return ["Write a short fact summary.", "Identify parties, dates, documents, and requested relief.", ...common];
+}
+
+function makeRequiredDocuments(matterType: string) {
+  if (matterType === "Consumer") return ["Invoice", "Warranty or service proof", "Complaint emails", "Demand notice"];
+  if (matterType === "Tax") return ["Income tax notice", "AIS/TIS", "Form 26AS", "Bank statements", "Prior ITR"];
+  if (matterType === "Property") return ["Agreement", "Title or ownership proof", "Tax receipts", "Legal notice"];
+  if (matterType === "Family") return ["Identity proof", "Marriage or relation proof", "Income records", "Prior orders"];
+  if (matterType === "Criminal") return ["FIR or complaint", "Bail/order papers", "ID proof", "Event timeline"];
+  if (matterType === "Labour") return ["Offer letter", "Payslips", "Termination notice", "Employer communication"];
+  return ["Identity proof", "Issue summary", "Relevant notices", "Supporting documents"];
 }
 
 function shouldRecommendTool(tool: string, message: string, matterType: string) {

@@ -3,6 +3,14 @@ import { AppShell, LegalDisclaimer } from "./components/AppShell";
 
 const sections = [
   {
+    title: "Guided Intake",
+    hindi: "कानूनी ब्रीफ",
+    href: "/intake",
+    description:
+      "Collect matter type, urgency, city, budget, and facts to generate a backend-powered brief.",
+    stats: "Triage API",
+  },
+  {
     title: "Nyay AI",
     hindi: "कानूनी AI सहायक",
     href: "/assistant",
@@ -19,6 +27,14 @@ const sections = [
     stats: "₹799+ consults",
   },
   {
+    title: "Case Tracker",
+    hindi: "मामला डैशबोर्ड",
+    href: "/cases",
+    description:
+      "Show active matters, deadlines, document lists, timeline status, and case progress.",
+    stats: "Matter ops",
+  },
+  {
     title: "Workflow Tools",
     hindi: "प्रक्रिया टूल्स",
     href: "/tools",
@@ -32,6 +48,9 @@ const backendRoutes = [
   "POST /api/chat",
   "GET /api/lawyers",
   "POST /api/consultations",
+  "GET/POST /api/intake",
+  "GET /api/cases",
+  "POST /api/payments",
   "GET /api/tools",
   "POST /api/documents/scan",
   "GET /api/health",
@@ -53,8 +72,8 @@ export default function Home() {
             legal intake, consultation discovery, and legal workflow tools.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link className="rounded-md bg-[#0f766e] px-4 py-3 text-sm font-semibold text-white" href="/assistant">
-              Start with Nyay AI
+            <Link className="rounded-md bg-[#0f766e] px-4 py-3 text-sm font-semibold text-white" href="/intake">
+              Start guided intake
             </Link>
             <Link className="rounded-md border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800" href="/lawyers">
               Find consultation
@@ -93,12 +112,12 @@ export default function Home() {
             <p className="text-sm text-slate-300">AI intake prototype</p>
           </div>
           <div>
-            <p className="text-3xl font-bold">6</p>
-            <p className="text-sm text-slate-300">sample Indian advocates</p>
+            <p className="text-3xl font-bold">9</p>
+            <p className="text-sm text-slate-300">backend API routes</p>
           </div>
           <div>
-            <p className="text-3xl font-bold">4</p>
-            <p className="text-sm text-slate-300">future workflow modules</p>
+            <p className="text-3xl font-bold">6</p>
+            <p className="text-sm text-slate-300">product sections</p>
           </div>
         </div>
       </section>
@@ -113,7 +132,8 @@ export default function Home() {
               <h2 className="mt-1 text-2xl font-bold">Production-style API layer</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                 The UI now calls typed Next.js API routes for chat intake, lawyer search,
-                consultation booking, tool metadata, document scan simulation, and health checks.
+                consultation booking, payment simulation, guided intake, case tracking, tool
+                metadata, document scan simulation, and health checks.
               </p>
             </div>
             <Link className="rounded-md bg-slate-950 px-4 py-3 text-sm font-semibold text-white" href="/api/health">

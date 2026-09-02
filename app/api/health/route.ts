@@ -5,7 +5,16 @@ export async function GET() {
     status: "ok",
     service: "NyayLink backend",
     version: "0.2.0",
-    capabilities: ["chat-intake", "lawyer-search", "consultation-booking", "workflow-tools", "document-scan"],
+    capabilities: [
+      "chat-intake",
+      "guided-intake",
+      "lawyer-search",
+      "consultation-booking",
+      "payment-order-simulation",
+      "case-tracking",
+      "workflow-tools",
+      "document-scan",
+    ],
     timestamp: new Date().toISOString(),
   });
 }
