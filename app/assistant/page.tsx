@@ -569,6 +569,7 @@ export default function AssistantPage() {
   const noChatStarted = messages.length === 0;
   const typedPlaceholder = composerPlaceholders[placeholderIndex].slice(0, placeholderLength);
   const composerPlaceholder = `${typedPlaceholder}${typedPlaceholder ? "|" : ""}`;
+  const packetCompletion = agentTurn?.completion || 0;
 
   return (
     <AppShell headerAction={headerToggle}>
@@ -581,15 +582,16 @@ export default function AssistantPage() {
           <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
             <div className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/75">
               <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
-                <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <h1 className="sr-only">AI Law Agent</h1>
-                    <p className="truncate text-sm text-slate-500">
-                      {activeWorkflow?.name || "Choose a filing type"}
-                    </p>
-                  </div>
-                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
-                    {status} · {agentTurn?.completion || 0}%
+                <div className="mx-auto flex max-w-3xl items-center justify-end">
+                  <h1 className="sr-only">AI Law Agent</h1>
+                  <span
+                    aria-label={`${status}, ${packetCompletion}% complete`}
+                    className="grid h-8 w-8 place-items-center rounded-full"
+                    style={{
+                      background: `conic-gradient(#020617 ${packetCompletion * 3.6}deg, #e5e7eb 0deg)`,
+                    }}
+                  >
+                    <span aria-hidden="true" className="h-5 w-5 rounded-full bg-white" />
                   </span>
                 </div>
 
