@@ -23,6 +23,16 @@ export const metadata: Metadata = {
   title: 'Caseway | Law AI',
   description:
     'A clean chat-first Law AI for Indian filing workflows and advocate review.',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.png',
+        type: 'image/png',
+      },
+    ],
+    shortcut: '/favicon.png',
+    apple: '/icon.png',
+  },
   openGraph: {
     title: 'Caseway | Law AI',
     description:
