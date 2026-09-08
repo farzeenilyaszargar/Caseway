@@ -656,7 +656,7 @@ export default function AssistantPage() {
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-full border border-slate-200 bg-white p-2">
+                <form onSubmit={onSubmit} className="chat-composer mx-auto max-w-3xl rounded-full border border-slate-200 bg-white p-2">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
@@ -706,7 +706,7 @@ export default function AssistantPage() {
                       value={input}
                       onChange={(event) => setInput(event.target.value)}
                       placeholder={composerPlaceholder}
-                      className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-[15px] outline-none ring-0 shadow-none focus:border-transparent focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+                      className="min-w-0 flex-1 border-0 bg-transparent px-2 py-2.5 text-[15px] outline-none ring-0 shadow-none focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                     />
                     <button
                       type="submit"

@@ -63,6 +63,17 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
+.chat-composer,
+.chat-composer:focus,
+.chat-composer:focus-within,
+.chat-composer *:focus,
+.chat-composer *:focus-visible {
+  border-color: rgb(226 232 240);
+  box-shadow: none;
+  outline: none;
+  outline-offset: 0;
+}
+
 button:active {
   transform: translateY(1px);
 }
