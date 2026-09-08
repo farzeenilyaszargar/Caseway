@@ -673,7 +673,7 @@ export default function AssistantPage() {
   return (
     <AppShell headerAction={headerToggle}>
       <section
-        className={`mx-auto flex h-full max-w-7xl flex-col px-3 py-4 sm:px-5 lg:px-8 ${
+        className={`mx-auto flex h-full max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8 ${
           mode === "agent" ? "overflow-hidden" : "overflow-y-auto"
         }`}
       >
@@ -853,7 +853,7 @@ export default function AssistantPage() {
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-6xl rounded-lg bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
+          <div className="w-full bg-white">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">Find lawyers</h1>
