@@ -251,6 +251,8 @@ export default function AssistantPage() {
   const [attachedDocuments, setAttachedDocuments] = useState<AttachedDocument[]>([]);
   const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderLength, setPlaceholderLength] = useState(0);
+  const [isPlaceholderDeleting, setIsPlaceholderDeleting] = useState(false);
 
   const [category, setCategory] = useState("All");
   const [city, setCity] = useState("All cities");
@@ -317,12 +319,30 @@ export default function AssistantPage() {
   }, []);
 
   useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setPlaceholderIndex((current) => (current + 1) % composerPlaceholders.length);
-    }, 2200);
+    if (input.length > 0) return;
 
-    return () => window.clearInterval(intervalId);
-  }, []);
+    const activePlaceholder = composerPlaceholders[placeholderIndex];
+    const isFullyTyped = placeholderLength === activePlaceholder.length;
+    const isFullyDeleted = placeholderLength === 0;
+    const delay = isFullyTyped && !isPlaceholderDeleting ? 1100 : isPlaceholderDeleting ? 35 : 55;
+
+    const timeoutId = window.setTimeout(() => {
+      if (isFullyTyped && !isPlaceholderDeleting) {
+        setIsPlaceholderDeleting(true);
+        return;
+      }
+
+      if (isFullyDeleted && isPlaceholderDeleting) {
+        setIsPlaceholderDeleting(false);
+        setPlaceholderIndex((current) => (current + 1) % composerPlaceholders.length);
+        return;
+      }
+
+      setPlaceholderLength((current) => current + (isPlaceholderDeleting ? -1 : 1));
+    }, delay);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [input.length, isPlaceholderDeleting, placeholderIndex, placeholderLength]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -543,7 +563,8 @@ export default function AssistantPage() {
   );
   const canSend = input.trim().length > 0 || attachedDocuments.length > 0;
   const noChatStarted = messages.length === 0;
-  const composerPlaceholder = agentTurn?.missingFields[0]?.placeholder || composerPlaceholders[placeholderIndex];
+  const typedPlaceholder = composerPlaceholders[placeholderIndex].slice(0, placeholderLength);
+  const composerPlaceholder = `${typedPlaceholder}${typedPlaceholder ? "|" : ""}`;
 
   return (
     <AppShell headerAction={headerToggle}>
@@ -635,7 +656,7 @@ export default function AssistantPage() {
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-lg border border-slate-200 bg-white p-2">
+                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-full border border-slate-200 bg-white p-2">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
@@ -685,7 +706,7 @@ export default function AssistantPage() {
                       value={input}
                       onChange={(event) => setInput(event.target.value)}
                       placeholder={composerPlaceholder}
-                      className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-[15px] outline-none"
+                      className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-[15px] outline-none ring-0 shadow-none focus:border-transparent focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                     />
                     <button
                       type="submit"
