@@ -151,6 +151,7 @@ export default function LawyersPage() {
                 step="100"
                 value={budget}
                 onChange={(event) => setBudget(Number(event.target.value))}
+                autoComplete="off"
                 className="mt-2 w-full accent-[#0f766e]"
               />
             </label>
@@ -159,6 +160,7 @@ export default function LawyersPage() {
                 type="checkbox"
                 checked={urgentOnly}
                 onChange={(event) => setUrgentOnly(event.target.checked)}
+                autoComplete="off"
                 className="h-4 w-4 accent-[#0f766e]"
               />
               Available today

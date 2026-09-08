@@ -179,6 +179,10 @@ function FloatingSelect({
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder={`Search ${label.toLowerCase()}...`}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   className="min-w-0 flex-1 bg-transparent py-1 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
                   autoFocus
                 />
@@ -706,6 +710,10 @@ export default function AssistantPage() {
                       value={input}
                       onChange={(event) => setInput(event.target.value)}
                       placeholder={composerPlaceholder}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="none"
+                      spellCheck={false}
                       className="min-w-0 flex-1 border-0 bg-transparent px-2 py-2.5 text-[15px] outline-none ring-0 shadow-none focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                     />
                     <button
@@ -786,6 +794,7 @@ export default function AssistantPage() {
                         type="checkbox"
                         checked={consent}
                         onChange={(event) => setConsent(event.target.checked)}
+                        autoComplete="off"
                         className="mt-1 h-4 w-4 accent-slate-950"
                       />
                       I reviewed this packet and authorize NyayLink to queue the selected route.
@@ -855,6 +864,7 @@ export default function AssistantPage() {
                   step="100"
                   value={budget}
                   onChange={(event) => setBudget(Number(event.target.value))}
+                  autoComplete="off"
                   className="mt-1 w-full accent-slate-950"
                 />
               </label>
@@ -863,6 +873,7 @@ export default function AssistantPage() {
                   type="checkbox"
                   checked={urgentOnly}
                   onChange={(event) => setUrgentOnly(event.target.checked)}
+                  autoComplete="off"
                   className="h-4 w-4 accent-slate-950"
                 />
                 Today

@@ -99,6 +99,10 @@ export default function IntakePage() {
                 onChange={(event) => setForm((current) => ({ ...current, summary: event.target.value }))}
                 rows={6}
                 placeholder="Example: My landlord sent a notice asking me to vacate in 30 days..."
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
                 className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-[#0f766e] focus:ring-2 focus:ring-teal-100"
               />
             </label>

@@ -131,6 +131,10 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
                 <input
                   aria-label="Message lawyer"
                   placeholder={`Message ${lawyer.name.replace("Adv. ", "")}...`}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-sm outline-none"
                 />
                 <button type="submit" className="grid h-10 w-10 place-items-center rounded-full bg-slate-950 text-white hover:bg-slate-800">
