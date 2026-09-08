@@ -52,7 +52,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
 
   return (
     <main className="app-canvas flex h-screen flex-col overflow-hidden text-slate-950">
-      <header className="z-20 shrink-0 border-b border-slate-200/70 bg-white/88 backdrop-blur-xl">
+      <header className="z-20 shrink-0 bg-white/88 backdrop-blur-xl">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 sm:grid-cols-[1fr_auto_1fr] sm:px-6 lg:px-8">
           <Link className="flex items-center justify-self-start" href="/" aria-label="NyayLink home">
             <span

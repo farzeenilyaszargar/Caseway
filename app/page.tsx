@@ -9,7 +9,7 @@ const capabilities = [
 export default function Home() {
   return (
     <main className="h-screen overflow-hidden bg-white text-slate-950">
-      <header className="border-b border-slate-200/70 bg-white/88 backdrop-blur-xl">
+      <header className="bg-white/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link className="flex items-center" href="/" aria-label="NyayLink home">
             <span
