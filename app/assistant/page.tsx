@@ -841,7 +841,6 @@ export default function AssistantPage() {
           <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Advocate review</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">Find lawyers</h1>
                 <p className="mt-1 text-sm text-slate-500">
                   Match your prepared packet with a demo advocate profile.
