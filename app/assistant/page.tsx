@@ -303,8 +303,8 @@ export default function AssistantPage() {
 
   return (
     <AppShell>
-      <section className="mx-auto flex min-h-[calc(100vh-65px)] max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-full max-w-md grid-cols-2 rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+      <section className="mx-auto flex min-h-[calc(100vh-65px)] max-w-7xl flex-col px-3 py-3 sm:px-5 lg:px-8">
+        <div className="mx-auto grid w-full max-w-sm grid-cols-2 rounded-full border border-slate-200 bg-white p-1 shadow-sm">
           {[
             ["agent", "AI Law Agent"],
             ["lawyers", "Find Lawyers"],
@@ -312,7 +312,7 @@ export default function AssistantPage() {
             <button
               key={value}
               onClick={() => setMode(value as Mode)}
-              className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                 mode === value ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
               }`}
             >
@@ -322,27 +322,27 @@ export default function AssistantPage() {
         </div>
 
         {mode === "agent" ? (
-          <div className="mt-4 grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_310px]">
-            <div className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h1 className="text-xl font-semibold text-slate-950">How can I help you file today?</h1>
+          <div className="mt-3 grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="flex min-h-0 flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/80">
+              <div className="px-4 py-4 sm:px-6">
+                <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <h1 className="text-lg font-semibold text-slate-950 sm:text-xl">How can I help you file today?</h1>
                     <p className="mt-1 text-sm text-slate-500">
                       {activeWorkflow?.name || "Choose a filing type"} via {activeIntegration?.name || "selected route"}
                     </p>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
                     {status} · {agentTurn?.completion || 0}%
                   </span>
                 </div>
 
-                <div className="mt-4 grid gap-2 md:grid-cols-2">
+                <div className="mx-auto mt-4 grid max-w-3xl gap-2 md:grid-cols-2">
                   <select
                     aria-label="Filing type"
                     value={selectedWorkflowId}
                     onChange={(event) => switchWorkflow(event.target.value as Workflow["id"])}
-                    className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-[#10a37f]"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-[#10a37f] focus:bg-white"
                   >
                     {workflows.map((workflow) => (
                       <option key={workflow.id} value={workflow.id}>
@@ -359,7 +359,7 @@ export default function AssistantPage() {
                       setConsent(false);
                       setSubmission(null);
                     }}
-                    className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-900 outline-none focus:border-[#10a37f]"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-[#10a37f] focus:bg-white"
                   >
                     {integrationOptions.map((integration) => (
                       <option key={integration.id} value={integration.id}>
@@ -370,20 +370,20 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="min-h-[360px] flex-1 overflow-y-auto p-4">
-                <div className="mx-auto max-w-3xl space-y-4">
+              <div className="min-h-[380px] flex-1 overflow-y-auto px-3 py-4 sm:px-6">
+                <div className="mx-auto max-w-3xl space-y-5">
                   {messages.map((message, index) => (
                     <div
                       key={`${message.role}-${index}`}
                       className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[88%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-6 ${
+                        className={`max-w-[86%] whitespace-pre-line px-4 py-3 text-[15px] leading-6 ${
                           message.role === "user"
-                            ? "bg-[#10a37f] text-white"
+                            ? "rounded-3xl bg-[#10a37f] text-white shadow-sm"
                             : message.role === "system"
-                              ? "border border-slate-200 bg-slate-100 text-slate-700"
-                              : "bg-slate-100 text-slate-800"
+                              ? "rounded-2xl border border-slate-200 bg-slate-50 text-slate-600"
+                              : "rounded-3xl bg-[#f4f4f4] text-slate-900"
                         }`}
                       >
                         {message.text}
@@ -393,19 +393,19 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-200 p-4">
+              <div className="px-3 pb-4 sm:px-6">
                 <div className="mx-auto mb-3 flex max-w-3xl gap-2 overflow-x-auto">
                   {starterPrompts.map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => void sendMessage(prompt)}
-                      className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                      className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50"
                     >
                       {prompt}
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto flex max-w-3xl rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+                <form onSubmit={onSubmit} className="mx-auto flex max-w-3xl items-end rounded-[1.6rem] border border-slate-200 bg-white p-2 shadow-[0_8px_30px_rgb(15_23_42/0.08)] focus-within:border-slate-300">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
@@ -414,9 +414,9 @@ export default function AssistantPage() {
                     value={input}
                     onChange={(event) => setInput(event.target.value)}
                     placeholder={agentTurn?.missingFields[0]?.placeholder || "Message NyayLink..."}
-                    className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm outline-none"
+                    className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-[15px] outline-none"
                   />
-                  <button className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                  <button className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
                     {isSending ? "..." : "Send"}
                   </button>
                 </form>
@@ -424,7 +424,7 @@ export default function AssistantPage() {
             </div>
 
             <aside className="min-h-0 space-y-3 overflow-y-auto">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
                 <h2 className="text-sm font-semibold text-slate-950">Review packet</h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   {activeIntegration
@@ -433,7 +433,7 @@ export default function AssistantPage() {
                 </p>
                 <div className="mt-4 space-y-2">
                   {agentTurn?.workflow.fields.map((field) => (
-                    <div key={field.id} className="rounded-xl bg-slate-50 p-3">
+                    <div key={field.id} className="rounded-2xl bg-slate-50 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-semibold text-slate-500">{field.label}</p>
                         <span className="text-[11px] font-semibold text-slate-400">
@@ -448,15 +448,15 @@ export default function AssistantPage() {
                           : field.question}
                       </p>
                     </div>
-                  )) || <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-500">No packet yet.</p>}
+                  )) || <p className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-500">No packet yet.</p>}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
                 <h2 className="text-sm font-semibold text-slate-950">Submit</h2>
                 {agentTurn?.draftPacket ? (
                   <div className="mt-3 space-y-3">
-                    <label className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-700">
+                    <label className="flex items-start gap-2 rounded-2xl bg-slate-50 p-3 text-xs leading-5 text-slate-700">
                       <input
                         type="checkbox"
                         checked={consent}
@@ -468,13 +468,13 @@ export default function AssistantPage() {
                     <button
                       onClick={() => void submitPacket()}
                       disabled={!consent || isSubmitting}
-                      className="w-full rounded-xl bg-[#10a37f] px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="w-full rounded-2xl bg-[#10a37f] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0d8f6f] disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       {isSubmitting ? "Queueing..." : "Queue filing"}
                     </button>
                   </div>
                 ) : (
-                  <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-500">
+                  <p className="mt-3 rounded-2xl bg-slate-50 p-3 text-sm text-slate-500">
                     The chat will unlock submission after all required details are captured.
                   </p>
                 )}
