@@ -516,7 +516,7 @@ export default function AssistantPage() {
   }
 
   const headerToggle = (
-    <div className="grid w-full grid-cols-2 rounded-full border border-slate-200/90 bg-white/92 p-1 sm:w-[360px]">
+    <div className="grid w-full grid-cols-2 rounded-full border border-slate-200/80 bg-white/92 p-0.5 sm:w-[320px]">
       {[
         ["agent", "AI Law Agent"],
         ["lawyers", "Find Lawyers"],
@@ -524,7 +524,7 @@ export default function AssistantPage() {
         <button
           key={value}
           onClick={() => setMode(value as Mode)}
-          className={`rounded-full px-4 py-2 text-sm font-medium ${
+          className={`rounded-full px-3 py-1.5 text-xs font-medium ${
             mode === value
               ? "bg-slate-950 text-white"
               : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
