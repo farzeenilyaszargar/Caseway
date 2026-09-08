@@ -4,8 +4,8 @@
   --background: #f7f7f8;
   --foreground: #0f172a;
   --ink: #0f172a;
-  --teal: #10a37f;
-  --saffron: #8b5a2b;
+  --accent: #111827;
+  --muted: #525252;
   --paper: #ffffff;
   --line: #e5e7eb;
 }
@@ -59,7 +59,7 @@ button:focus-visible,
 select:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid rgb(16 163 127 / 0.34);
+  outline: 2px solid rgb(17 24 39 / 0.28);
   outline-offset: 2px;
 }
 
@@ -68,7 +68,7 @@ button:active {
 }
 
 ::selection {
-  background: #0f766e;
+  background: #111827;
   color: white;
 }
 
@@ -94,7 +94,7 @@ button:active {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(135deg, #0f172a 0%, #17313a 46%, #0f766e 100%);
+    linear-gradient(135deg, #111827 0%, #262626 54%, #404040 100%);
 }
 
 .legal-stage::before {

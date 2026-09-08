@@ -26,7 +26,7 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
 
 export function LegalDisclaimer() {
   return (
-    <aside className="premium-card rounded-lg border border-amber-200 bg-[#fff8eb] p-4 text-sm leading-6 text-amber-950">
+    <aside className="premium-card rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
       <p className="font-semibold">Important legal notice</p>
       <p className="mt-1">
         NyayLink provides general legal information and workflow assistance. For filings,

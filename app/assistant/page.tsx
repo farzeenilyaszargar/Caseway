@@ -346,7 +346,7 @@ export default function AssistantPage() {
                     aria-label="Filing type"
                     value={selectedWorkflowId}
                     onChange={(event) => switchWorkflow(event.target.value as Workflow["id"])}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
                   >
                     {workflows.map((workflow) => (
                       <option key={workflow.id} value={workflow.id}>
@@ -363,7 +363,7 @@ export default function AssistantPage() {
                       setConsent(false);
                       setSubmission(null);
                     }}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
                   >
                     {integrationOptions.map((integration) => (
                       <option key={integration.id} value={integration.id}>
@@ -389,7 +389,7 @@ export default function AssistantPage() {
                       <div
                         className={`max-w-[84%] whitespace-pre-line px-4 py-3 text-[15px] leading-6 ${
                           message.role === "user"
-                            ? "rounded-[1.35rem] bg-[#10a37f] text-white shadow-sm"
+                            ? "rounded-[1.35rem] bg-slate-950 text-white shadow-sm"
                             : message.role === "system"
                               ? "rounded-[1.35rem] border border-slate-200 bg-slate-50 text-slate-600"
                               : "rounded-[1.35rem] bg-[#f4f4f4] text-slate-900"
@@ -470,14 +470,14 @@ export default function AssistantPage() {
                         type="checkbox"
                         checked={consent}
                         onChange={(event) => setConsent(event.target.checked)}
-                        className="mt-1 h-4 w-4 accent-[#10a37f]"
+                        className="mt-1 h-4 w-4 accent-slate-950"
                       />
                       I reviewed this packet and authorize NyayLink to queue the selected route.
                     </label>
                     <button
                       onClick={() => void submitPacket()}
                       disabled={!consent || isSubmitting}
-                      className="w-full rounded-2xl bg-[#10a37f] px-4 py-3 text-sm font-semibold text-white hover:bg-[#0d8f6f] disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       {isSubmitting ? "Queueing..." : "Queue filing"}
                     </button>
@@ -511,7 +511,7 @@ export default function AssistantPage() {
                 aria-label="City"
                 value={city}
                 onChange={(event) => setCity(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
               >
                 {cities.map((item) => (
                   <option key={item}>{item}</option>
@@ -521,7 +521,7 @@ export default function AssistantPage() {
                 aria-label="Practice area"
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
               >
                 {categories.map((item) => (
                   <option key={item}>{item}</option>
@@ -536,7 +536,7 @@ export default function AssistantPage() {
                   step="100"
                   value={budget}
                   onChange={(event) => setBudget(Number(event.target.value))}
-                  className="mt-1 w-full accent-[#10a37f]"
+                  className="mt-1 w-full accent-slate-950"
                 />
               </label>
               <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-white">
@@ -544,7 +544,7 @@ export default function AssistantPage() {
                   type="checkbox"
                   checked={urgentOnly}
                   onChange={(event) => setUrgentOnly(event.target.checked)}
-                  className="h-4 w-4 accent-[#10a37f]"
+                  className="h-4 w-4 accent-slate-950"
                 />
                 Today
               </label>
@@ -572,7 +572,7 @@ export default function AssistantPage() {
                   <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">Rating {lawyer.rating}</span>
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">{lawyer.experience} yrs</span>
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">{lawyer.availability}</span>
+                    <span className="rounded-full bg-slate-950 px-2.5 py-1 text-white">{lawyer.availability}</span>
                   </div>
                   <p className="mt-3 text-xs leading-5 text-slate-500">
                     {lawyer.languages.join(", ")} · {lawyer.response} response · {lawyer.matters} matters
@@ -580,13 +580,13 @@ export default function AssistantPage() {
                   <button
                     onClick={() => void requestReview(lawyer)}
                     className={`mt-4 w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white ${
-                      selectedLawyerId === lawyer.id ? "bg-[#10a37f]" : "bg-slate-950 hover:bg-slate-800"
+                      selectedLawyerId === lawyer.id ? "bg-zinc-700" : "bg-slate-950 hover:bg-slate-800"
                     }`}
                   >
                     {selectedLawyerId === lawyer.id ? "Review requested" : "Request review"}
                   </button>
                   {selectedLawyerId === lawyer.id && reviewRequest ? (
-                    <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-950">
+                    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs leading-5 text-slate-700">
                       <p className="font-semibold">{reviewRequest.lawyerName} is selected.</p>
                       <p>Consultation: {reviewRequest.consultationId}</p>
                       <p>Payment order: {reviewRequest.status} · {reviewRequest.paymentId}</p>
