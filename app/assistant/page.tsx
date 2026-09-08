@@ -587,10 +587,10 @@ export default function AssistantPage() {
                     <div className="flex flex-col items-center">
                       <span
                         aria-hidden="true"
-                        className="h-12 w-28 bg-contain bg-center bg-no-repeat opacity-[0.12]"
+                        className="h-8 w-20 bg-contain bg-center bg-no-repeat opacity-[0.1]"
                         style={{ backgroundImage: "url('/nyaylink-logo.png')" }}
                       />
-                      <p className="mt-5 text-center text-3xl font-semibold tracking-normal text-slate-300 sm:text-4xl">
+                      <p className="mt-3 text-center text-base font-medium tracking-normal text-slate-300 sm:text-lg">
                         How Can I Help You Today?
                       </p>
                     </div>
