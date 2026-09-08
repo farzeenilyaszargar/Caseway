@@ -303,7 +303,7 @@ export default function AssistantPage() {
 
   return (
     <AppShell>
-      <section className="mx-auto flex min-h-[calc(100vh-65px)] max-w-7xl flex-col px-3 py-4 sm:px-5 lg:px-8">
+      <section className="mx-auto flex h-[calc(100vh-65px)] max-w-7xl flex-col overflow-hidden px-3 py-4 sm:px-5 lg:px-8">
         <div className="mx-auto grid w-full max-w-sm grid-cols-2 rounded-full border border-slate-200/90 bg-white/92 p-1 shadow-[0_10px_35px_rgb(15_23_42/0.06)]">
           {[
             ["agent", "AI Law Agent"],
@@ -324,7 +324,7 @@ export default function AssistantPage() {
         </div>
 
         {mode === "agent" ? (
-          <div className="mt-5 grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="mt-5 grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
             <div className="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_60px_rgb(15_23_42/0.07)] ring-1 ring-slate-200/75">
               <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
                 <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
@@ -374,7 +374,7 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="min-h-[420px] flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
+              <div className="min-h-0 flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
                 <div className="mx-auto max-w-3xl space-y-6">
                   {messages.map((message, index) => (
                     <div
@@ -432,7 +432,7 @@ export default function AssistantPage() {
               </div>
             </div>
 
-            <aside className="min-h-0 space-y-3 overflow-y-auto">
+            <aside className="hidden min-h-0 space-y-3 overflow-y-auto lg:block">
               <div className="rounded-[1.7rem] border border-slate-200/80 bg-white p-4 shadow-sm">
                 <h2 className="text-sm font-semibold text-slate-950">Review packet</h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
@@ -492,8 +492,8 @@ export default function AssistantPage() {
             </aside>
           </div>
         ) : (
-          <div className="mx-auto mt-5 w-full max-w-6xl flex-1 rounded-[2rem] bg-white p-4 shadow-[0_18px_60px_rgb(15_23_42/0.07)] ring-1 ring-slate-200/75 sm:p-6">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="mx-auto mt-5 flex min-h-0 w-full max-w-6xl flex-1 flex-col rounded-[2rem] bg-white p-4 shadow-[0_18px_60px_rgb(15_23_42/0.07)] ring-1 ring-slate-200/75 sm:p-6">
+            <div className="flex shrink-0 flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Advocate review</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">Find lawyers</h1>
@@ -506,7 +506,7 @@ export default function AssistantPage() {
               </span>
             </div>
 
-            <div className="mt-5 grid gap-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid shrink-0 gap-2 md:grid-cols-[1fr_1fr_1fr_auto]">
               <select
                 aria-label="City"
                 value={city}
@@ -550,7 +550,7 @@ export default function AssistantPage() {
               </label>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <div className="mt-5 grid min-h-0 flex-1 gap-3 overflow-y-auto pr-1 md:grid-cols-2">
               {filteredLawyers.map((lawyer) => (
                 <article
                   key={lawyer.id}
