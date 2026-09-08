@@ -1,8 +1,9 @@
 # NyayLink
 
-NyayLink is a Next.js platform for Indian legal help. It combines guided legal
-intake, lawyer consultation discovery, workflow tools, case tracking, and a
-service layer designed for OCR, payments, auth, and data storage.
+NyayLink is a chat-first AI filing copilot for Indian legal and compliance
+workflows. The primary experience is a guided filing conversation that collects
+missing information, chooses a realistic government integration route, prepares
+a filing packet, and waits for consent before submission handoff.
 
 ## Local Development
 
@@ -22,12 +23,12 @@ OPENAI_MODEL=gpt-5.6
 
 ## Product Routes
 
-- `/` overview and architecture summary
+- `/` redirects to the filing chat
 - `/intake` guided intake and legal brief generation
-- `/assistant` legal guidance desk
-- `/lawyers` lawyer discovery and consultation booking
-- `/cases` matter tracking dashboard
-- `/tools` OCR/document/legal workflow modules
+- `/assistant` AI filing copilot for tax, consumer, notice, and court packets
+- `/lawyers` supporting advocate discovery and consultation booking
+- `/cases` supporting matter tracking dashboard
+- `/tools` supporting OCR/document/legal workflow modules
 
 ## API Routes
 
@@ -35,6 +36,10 @@ OPENAI_MODEL=gpt-5.6
 - `GET /api/intake`
 - `POST /api/intake`
 - `POST /api/chat`
+- `GET /api/agent`
+- `POST /api/agent`
+- `GET /api/integrations`
+- `POST /api/filings/submit`
 - `GET /api/lawyers?city=Delhi&category=Criminal&maxPrice=1200&urgentOnly=true`
 - `POST /api/consultations`
 - `POST /api/payments`
@@ -43,8 +48,10 @@ OPENAI_MODEL=gpt-5.6
 - `POST /api/documents/scan`
 
 The backend is structured like a production service:
-validation, typed request models, backend service functions, generated IDs,
-timestamps, health checks, payment orders, case data, and clear error responses.
+validation, typed request models, backend service functions, guided agent
+workflows, researched Indian government integration routes, consent-gated filing
+submission adapters, generated IDs, timestamps, health checks, payment orders,
+case data, and clear error responses.
 
 ## Production Notes
 

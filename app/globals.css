@@ -1,13 +1,13 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #f4f1ea;
+  --background: #f7f7f8;
   --foreground: #0f172a;
   --ink: #0f172a;
-  --teal: #0f766e;
-  --saffron: #b45309;
-  --paper: #fffdf8;
-  --line: #d9d4c8;
+  --teal: #10a37f;
+  --saffron: #8b5a2b;
+  --paper: #ffffff;
+  --line: #e5e7eb;
 }
 
 @theme inline {
@@ -47,27 +47,21 @@ button {
 }
 
 .app-canvas {
-  background:
-    linear-gradient(180deg, #fbfaf7 0%, #f4f1ea 62%, #efebe2 100%),
-    #f4f1ea;
+  background: #f7f7f8;
 }
 
 .topbar {
-  background:
-    linear-gradient(180deg, rgb(255 253 248 / 0.96), rgb(255 253 248 / 0.88)),
-    linear-gradient(90deg, rgb(15 118 110 / 0.08), rgb(180 83 9 / 0.08));
+  background: rgb(255 255 255 / 0.86);
 }
 
 .paper-surface {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.9), rgb(255 253 248 / 0.96)),
-    repeating-linear-gradient(0deg, transparent, transparent 23px, rgb(15 23 42 / 0.03) 24px);
+  background: #ffffff;
 }
 
 .premium-card {
   box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.7) inset,
-    0 18px 55px rgb(15 23 42 / 0.08);
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 14px 38px rgb(15 23 42 / 0.06);
 }
 
 .legal-stage {
