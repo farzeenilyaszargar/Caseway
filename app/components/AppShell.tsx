@@ -67,7 +67,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
             </div>
           ) : null}
           <div
-            className="relative justify-self-end"
+            className="relative justify-self-end sm:col-start-3"
             onBlur={(event) => {
               if (!event.currentTarget.contains(event.relatedTarget)) setProfileOpen(false);
             }}
