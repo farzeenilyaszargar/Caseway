@@ -54,14 +54,12 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
     <main className="app-canvas flex h-screen flex-col overflow-hidden text-slate-950">
       <header className="z-20 shrink-0 border-b border-slate-200/70 bg-white/88 backdrop-blur-xl">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 sm:grid-cols-[1fr_auto_1fr] sm:px-6 lg:px-8">
-          <Link className="flex items-center gap-3 justify-self-start" href="/">
+          <Link className="flex items-center justify-self-start" href="/" aria-label="NyayLink home">
             <span
               aria-hidden="true"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-950 text-[13px] font-semibold tracking-normal text-white"
-            >
-              NL
-            </span>
-            <p className="text-base font-semibold leading-tight tracking-normal text-slate-950">NyayLink</p>
+              className="h-11 w-24 shrink-0 bg-contain bg-left bg-no-repeat"
+              style={{ backgroundImage: "url('/nyaylink-logo.png')" }}
+            />
           </Link>
           {headerAction ? (
             <div className="col-span-2 row-start-2 w-full justify-self-center sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:w-auto">
