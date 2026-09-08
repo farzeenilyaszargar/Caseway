@@ -186,7 +186,7 @@ function FloatingSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={() => (isOpen ? closeMenu() : onOpen())}
-        className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-slate-950"
+        className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-white focus:border-slate-950"
       >
         <span className="min-w-0">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</span>
@@ -246,7 +246,7 @@ function FloatingSelect({
                       closeMenu();
                     }}
                     className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition ${
-                      selectedOption ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
+                      selectedOption ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-white hover:text-slate-950"
                     }`}
                   >
                     <span className="min-w-0">
@@ -646,7 +646,7 @@ export default function AssistantPage() {
           className={`rounded-full px-3 py-1.5 text-xs font-medium ${
             mode === value
               ? "bg-slate-950 text-white"
-              : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
+              : "text-slate-600 hover:bg-white hover:text-slate-950"
           }`}
         >
           {label}
@@ -712,8 +712,8 @@ export default function AssistantPage() {
                           message.role === "user"
                             ? "rounded-xl bg-slate-950 text-white"
                             : message.role === "system"
-                              ? "rounded-xl border border-slate-200 bg-slate-50 text-slate-600"
-                              : "rounded-xl bg-[#f4f4f4] text-slate-900"
+                              ? "rounded-xl border border-slate-200 bg-white text-slate-600"
+                              : "rounded-xl border border-slate-200 bg-white text-slate-900"
                         }`}
                       >
                         {message.text}
@@ -733,7 +733,7 @@ export default function AssistantPage() {
                                 </div>
                               ))}
                             </div>
-                            <div className="border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600">
+                            <div className="border-t border-slate-100 bg-white px-3 py-2 text-xs leading-5 text-slate-600">
                               {message.packet.declaration}
                             </div>
                           </div>
@@ -745,7 +745,7 @@ export default function AssistantPage() {
                                 key={`${action.type}-${action.workflowId || action.label}`}
                                 type="button"
                                 onClick={() => runChatAction(action)}
-                                className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
+                                className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-white"
                               >
                                 {action.label}
                               </button>
@@ -760,7 +760,7 @@ export default function AssistantPage() {
                       <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-950 text-[11px] font-semibold text-white">
                         न
                       </div>
-                      <div className="rounded-xl bg-[#f4f4f4] px-4 py-3 text-[15px] leading-6 text-slate-500">
+                      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] leading-6 text-slate-500">
                         Thinking...
                       </div>
                     </div>
@@ -774,7 +774,7 @@ export default function AssistantPage() {
                     <button
                       key={prompt}
                       onClick={() => void sendMessage(prompt)}
-                      className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
+                      className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-white hover:text-slate-950"
                     >
                       {prompt}
                     </button>
@@ -789,7 +789,7 @@ export default function AssistantPage() {
                       {attachedDocuments.map((file) => (
                         <span
                           key={file.id}
-                          className="inline-flex max-w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                          className="inline-flex max-w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600"
                         >
                           <span className="truncate">{file.name}</span>
                           <span className="shrink-0 text-slate-400">{formatFileSize(file.size)}</span>
@@ -819,7 +819,7 @@ export default function AssistantPage() {
                       onClick={() => fileInputRef.current?.click()}
                       aria-label="Attach documents"
                       title="Attach documents"
-                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg text-slate-500 hover:bg-white hover:text-slate-950"
                     >
                       <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
                         <path d="M12 5v14M5 12h14" strokeLinecap="round" />
@@ -865,13 +865,13 @@ export default function AssistantPage() {
                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
                   Demo profiles
                 </span>
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
                   {lawyerStatus} · {filteredLawyers.length} matches
                 </span>
               </div>
             </div>
 
-            <div className="mt-5 grid gap-2 rounded-lg border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid gap-2 rounded-lg border border-slate-200 bg-white p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
               <FloatingSelect
                 label="City"
                 value={city}
@@ -1007,7 +1007,7 @@ export default function AssistantPage() {
                   type="button"
                   aria-label="Close final confirmation"
                   onClick={() => setConfirmOpen(false)}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-white hover:text-slate-950"
                 >
                   x
                 </button>
@@ -1028,7 +1028,7 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+              <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">
                 <p className="font-semibold text-slate-950">Submission review</p>
                 <p className="mt-1">
                   This payload is prepared for {agentTurn.workflow.forum}. It will be queued through the {agentTurn.integration.name} route and should be checked against official portal/API requirements before live filing.
@@ -1039,7 +1039,7 @@ export default function AssistantPage() {
                 <button
                   type="button"
                   onClick={() => setConfirmOpen(false)}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-white"
                 >
                   Keep editing
                 </button>
@@ -1063,7 +1063,7 @@ export default function AssistantPage() {
                   <div
                     role="img"
                     aria-label={`Demo profile portrait for ${selectedLawyer.name}`}
-                    className="h-20 w-20 shrink-0 rounded-xl border border-slate-200 bg-slate-50 bg-cover bg-center"
+                    className="h-20 w-20 shrink-0 rounded-xl border border-slate-200 bg-white bg-cover bg-center"
                     style={{ backgroundImage: `url(${selectedLawyer.profileImage})` }}
                   />
                   <div className="min-w-0">
@@ -1081,7 +1081,7 @@ export default function AssistantPage() {
                     setSelectedLawyerId(null);
                     setReviewRequest(null);
                   }}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-white hover:text-slate-950"
                 >
                   x
                 </button>
@@ -1094,7 +1094,7 @@ export default function AssistantPage() {
                   ["Response", selectedLawyer.response],
                   ["Matters", selectedLawyer.matters],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <div key={label} className="rounded-xl border border-slate-200 bg-white p-3">
                     <p className="text-sm font-semibold text-slate-950">{value}</p>
                     <p className="mt-0.5 text-xs text-slate-500">{label}</p>
                   </div>
@@ -1121,7 +1121,7 @@ export default function AssistantPage() {
                 <button
                   type="button"
                   onClick={() => void requestReview(selectedLawyer)}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50"
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-white"
                 >
                   Check availability
                 </button>
