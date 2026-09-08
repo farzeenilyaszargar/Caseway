@@ -525,7 +525,7 @@ export async function createOpenAIChatResponse(body: ChatRequest) {
 
   const matterType = body.matterType || inferMatterType(message);
   const nextSteps = makeNextSteps(matterType);
-  const model = process.env.OPENAI_MODEL || "gpt-5.6";
+  const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
   const recentConversation = (body.conversation || [])
     .slice(-8)
     .map((item) => `${item.role === "user" ? "User" : "Legal Desk"}: ${item.text}`)
@@ -697,7 +697,7 @@ export async function createOpenAILegalAutomationTurn(body: LegalAutomationReque
     return createLegalAutomationTurn(body);
   }
 
-  const model = process.env.OPENAI_MODEL || "gpt-5.6";
+  const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
   const extractionPrompt = [
     "Extract filing intake values from the user's message for this Indian legal workflow.",
     "Return only a JSON object. Use field ids as keys. Include only values that are explicitly stated or clearly implied. Do not invent missing information.",
