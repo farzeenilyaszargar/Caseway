@@ -161,7 +161,7 @@ function FloatingSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={() => (isOpen ? closeMenu() : onOpen())}
-        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-slate-950"
+        className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-slate-950"
       >
         <span className="min-w-0">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</span>
@@ -182,10 +182,10 @@ function FloatingSelect({
       {isOpen ? (
         <div
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-[1.25rem] border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-xl border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
         >
           <div className="sticky top-0 z-10 bg-white p-1">
-            <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500 focus-within:border-slate-950 focus-within:bg-white">
+            <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500 focus-within:border-slate-950 focus-within:bg-white">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="m21 21-4.3-4.3" strokeLinecap="round" />
                 <path d="M10.8 18a7.2 7.2 0 1 0 0-14.4 7.2 7.2 0 0 0 0 14.4Z" />
@@ -213,7 +213,7 @@ function FloatingSelect({
                   onSelect(option.value);
                   closeMenu();
                 }}
-                className={`flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
+                className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition ${
                   selectedOption ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
                 }`}
               >
@@ -609,7 +609,7 @@ export default function AssistantPage() {
       <section className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden px-3 py-4 sm:px-5 lg:px-8">
         {mode === "agent" ? (
           <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
-            <div className="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-white ring-1 ring-slate-200/75">
+            <div className="flex min-h-0 flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200/75">
               <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
                 <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -667,10 +667,10 @@ export default function AssistantPage() {
                       <div
                         className={`max-w-[84%] whitespace-pre-line px-4 py-3 text-[15px] leading-6 ${
                           message.role === "user"
-                            ? "rounded-[1.35rem] bg-slate-950 text-white"
+                            ? "rounded-xl bg-slate-950 text-white"
                             : message.role === "system"
-                              ? "rounded-[1.35rem] border border-slate-200 bg-slate-50 text-slate-600"
-                              : "rounded-[1.35rem] bg-[#f4f4f4] text-slate-900"
+                              ? "rounded-xl border border-slate-200 bg-slate-50 text-slate-600"
+                              : "rounded-xl bg-[#f4f4f4] text-slate-900"
                         }`}
                       >
                         {message.text}
@@ -692,7 +692,7 @@ export default function AssistantPage() {
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-[1.7rem] border border-slate-200 bg-white p-2 focus-within:border-slate-300">
+                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-2 focus-within:border-slate-300">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
@@ -701,7 +701,7 @@ export default function AssistantPage() {
                       {attachedDocuments.map((file) => (
                         <span
                           key={file.id}
-                          className="inline-flex max-w-full items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                          className="inline-flex max-w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
                         >
                           <span className="truncate">{file.name}</span>
                           <span className="shrink-0 text-slate-400">{formatFileSize(file.size)}</span>
@@ -766,7 +766,7 @@ export default function AssistantPage() {
                         </svg>
                       )}
                     </button>
-                    <button className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300">
+                    <button className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300">
                       {isSending ? "..." : "Send"}
                     </button>
                   </div>
@@ -775,7 +775,7 @@ export default function AssistantPage() {
             </div>
 
             <aside className="hidden min-h-0 space-y-3 overflow-y-auto lg:block">
-              <div className="rounded-[1.7rem] border border-slate-200/80 bg-white p-4">
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
                 <h2 className="text-sm font-semibold text-slate-950">Review packet</h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   {activeIntegration
@@ -784,7 +784,7 @@ export default function AssistantPage() {
                 </p>
                 <div className="mt-4 space-y-2">
                   {agentTurn?.workflow.fields.map((field) => (
-                    <div key={field.id} className="rounded-2xl border border-transparent bg-slate-50 p-3">
+                    <div key={field.id} className="rounded-xl border border-transparent bg-slate-50 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-semibold text-slate-500">{field.label}</p>
                         <span className="text-[11px] font-semibold text-slate-400">
@@ -799,15 +799,15 @@ export default function AssistantPage() {
                           : field.question}
                       </p>
                     </div>
-                  )) || <p className="rounded-2xl bg-slate-50 p-3 text-sm text-slate-500">No packet yet.</p>}
+                  )) || <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-500">No packet yet.</p>}
                 </div>
               </div>
 
-              <div className="rounded-[1.7rem] border border-slate-200/80 bg-white p-4">
+              <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
                 <h2 className="text-sm font-semibold text-slate-950">Submit</h2>
                 {agentTurn?.draftPacket ? (
                   <div className="mt-3 space-y-3">
-                    <label className="flex items-start gap-2 rounded-2xl bg-slate-50 p-3 text-xs leading-5 text-slate-700">
+                    <label className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-700">
                       <input
                         type="checkbox"
                         checked={consent}
@@ -819,13 +819,13 @@ export default function AssistantPage() {
                     <button
                       onClick={() => void submitPacket()}
                       disabled={!consent || isSubmitting}
-                      className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       {isSubmitting ? "Queueing..." : "Queue filing"}
                     </button>
                   </div>
                 ) : (
-                  <p className="mt-3 rounded-2xl bg-slate-50 p-3 text-sm text-slate-500">
+                  <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-500">
                     The chat will unlock submission after all required details are captured.
                   </p>
                 )}
@@ -834,7 +834,7 @@ export default function AssistantPage() {
             </aside>
           </div>
         ) : (
-          <div className="mx-auto mt-5 flex min-h-0 w-full max-w-6xl flex-1 flex-col rounded-[2rem] bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
+          <div className="mx-auto mt-5 flex min-h-0 w-full max-w-6xl flex-1 flex-col rounded-2xl bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
             <div className="flex shrink-0 flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Advocate review</p>
@@ -853,7 +853,7 @@ export default function AssistantPage() {
               </div>
             </div>
 
-            <div className="mt-5 grid shrink-0 gap-2 rounded-[1.35rem] border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid shrink-0 gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
               <FloatingSelect
                 label="City"
                 value={city}
@@ -872,7 +872,7 @@ export default function AssistantPage() {
                 onClose={() => setOpenDropdown(null)}
                 onSelect={setCategory}
               />
-              <label className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300">
+              <label className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300">
                 Fee up to Rs {budget}
                 <input
                   type="range"
@@ -884,7 +884,7 @@ export default function AssistantPage() {
                   className="mt-1 w-full accent-slate-950"
                 />
               </label>
-              <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
+              <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
                 <input
                   type="checkbox"
                   checked={urgentOnly}
@@ -899,13 +899,13 @@ export default function AssistantPage() {
               {filteredLawyers.map((lawyer) => (
                 <article
                   key={lawyer.id}
-                  className={`overflow-hidden rounded-[1.5rem] border border-slate-200 bg-gradient-to-br ${lawyerAccentClasses[(lawyer.id - 1) % lawyerAccentClasses.length]} p-4 transition hover:-translate-y-0.5 hover:border-slate-300`}
+                  className={`overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br ${lawyerAccentClasses[(lawyer.id - 1) % lawyerAccentClasses.length]} p-4 transition hover:-translate-y-0.5 hover:border-slate-300`}
                 >
                   <div className="flex gap-4">
                     <div
                       role="img"
                       aria-label={`Demo profile portrait for ${lawyer.name}`}
-                      className="h-20 w-20 shrink-0 rounded-[1.2rem] border border-white/80 bg-white bg-cover bg-center"
+                      className="h-20 w-20 shrink-0 rounded-xl border border-white/80 bg-white bg-cover bg-center"
                       style={{ backgroundImage: `url(${lawyer.profileImage})` }}
                     />
                     <div className="min-w-0 flex-1">
@@ -920,7 +920,7 @@ export default function AssistantPage() {
                             <span className="truncate">{lawyer.city} · {lawyer.court}</span>
                           </p>
                         </div>
-                        <div className="rounded-2xl border border-white/80 bg-white/80 px-3 py-2 text-right">
+                        <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-2 text-right">
                           <p className="text-sm font-semibold text-slate-950">Rs {lawyer.price}</p>
                           <p className="text-[11px] font-medium text-slate-400">30 min</p>
                         </div>
@@ -940,15 +940,15 @@ export default function AssistantPage() {
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-                    <div className="rounded-2xl border border-white/80 bg-white/70 p-3">
+                    <div className="rounded-xl border border-white/80 bg-white/70 p-3">
                       <p className="font-semibold text-slate-950">{lawyer.response}</p>
                       <p className="mt-0.5 text-slate-500">response</p>
                     </div>
-                    <div className="rounded-2xl border border-white/80 bg-white/70 p-3">
+                    <div className="rounded-xl border border-white/80 bg-white/70 p-3">
                       <p className="font-semibold text-slate-950">{lawyer.matters}</p>
                       <p className="mt-0.5 text-slate-500">matters</p>
                     </div>
-                    <div className="rounded-2xl border border-white/80 bg-white/70 p-3">
+                    <div className="rounded-xl border border-white/80 bg-white/70 p-3">
                       <p className="font-semibold text-slate-950">{lawyer.languages.length}</p>
                       <p className="mt-0.5 text-slate-500">languages</p>
                     </div>
@@ -958,14 +958,14 @@ export default function AssistantPage() {
                   </p>
                   <button
                     onClick={() => void requestReview(lawyer)}
-                    className={`mt-4 w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white ${
+                    className={`mt-4 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white ${
                       selectedLawyerId === lawyer.id ? "bg-zinc-700" : "bg-slate-950 hover:bg-slate-800"
                     }`}
                   >
                     {selectedLawyerId === lawyer.id ? "Review requested" : "Request review"}
                   </button>
                   {selectedLawyerId === lawyer.id && reviewRequest ? (
-                    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs leading-5 text-slate-700">
+                    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-5 text-slate-700">
                       <p className="font-semibold">{reviewRequest.lawyerName} is selected.</p>
                       <p>Consultation: {reviewRequest.consultationId}</p>
                       <p>Payment order: {reviewRequest.status} · {reviewRequest.paymentId}</p>
