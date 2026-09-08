@@ -84,6 +84,13 @@ export default function AssistantPage() {
   const [urgentOnly, setUrgentOnly] = useState(false);
   const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>(fallbackLawyers);
   const [lawyerStatus, setLawyerStatus] = useState("Listings ready");
+  const [selectedLawyerId, setSelectedLawyerId] = useState<number | null>(null);
+  const [reviewRequest, setReviewRequest] = useState<{
+    lawyerName: string;
+    consultationId: string;
+    paymentId: string;
+    status: string;
+  } | null>(null);
 
   const activeWorkflow = useMemo(
     () => agentTurn?.workflow || workflows.find((workflow) => workflow.id === selectedWorkflowId),
@@ -245,12 +252,61 @@ export default function AssistantPage() {
     void sendMessage();
   }
 
+  async function requestReview(lawyer: Lawyer) {
+    setSelectedLawyerId(lawyer.id);
+    setReviewRequest(null);
+    setLawyerStatus("Creating review request");
+
+    try {
+      const consultationResponse = await fetch("/api/consultations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lawyerId: lawyer.id,
+          issueSummary: agentTurn?.draftPacket
+            ? `${agentTurn.draftPacket.title} review requested.`
+            : `${lawyer.specialty} legal review requested from lawyer finder.`,
+          preferredSlot: lawyer.availability,
+          contactMode: "video",
+        }),
+      });
+      const consultation = (await consultationResponse.json()) as { id?: string; error?: string };
+      if (!consultationResponse.ok || !consultation.id) {
+        throw new Error(consultation.error || "Consultation failed.");
+      }
+
+      const paymentResponse = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          consultationId: consultation.id,
+          amount: lawyer.price,
+          method: "upi",
+        }),
+      });
+      const payment = (await paymentResponse.json()) as { id?: string; status?: string };
+      if (!paymentResponse.ok || !payment.id || !payment.status) {
+        throw new Error("Payment order failed.");
+      }
+
+      setReviewRequest({
+        lawyerName: lawyer.name,
+        consultationId: consultation.id,
+        paymentId: payment.id,
+        status: payment.status,
+      });
+      setLawyerStatus("Review request ready");
+    } catch {
+      setLawyerStatus("Request failed");
+    }
+  }
+
   return (
     <AppShell>
       <section className="mx-auto flex min-h-[calc(100vh-65px)] max-w-7xl flex-col px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto grid w-full max-w-md grid-cols-2 rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
           {[
-            ["agent", "AI Agent"],
+            ["agent", "AI Law Agent"],
             ["lawyers", "Find Lawyers"],
           ].map(([value, label]) => (
             <button
@@ -500,9 +556,24 @@ export default function AssistantPage() {
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">{lawyer.experience} yrs</span>
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">{lawyer.availability}</span>
                   </div>
-                  <button className="mt-4 w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white">
-                    Request review
+                  <p className="mt-3 text-xs leading-5 text-slate-500">
+                    {lawyer.languages.join(", ")} · {lawyer.response} response · {lawyer.matters} matters
+                  </p>
+                  <button
+                    onClick={() => void requestReview(lawyer)}
+                    className={`mt-4 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white ${
+                      selectedLawyerId === lawyer.id ? "bg-[#10a37f]" : "bg-slate-950 hover:bg-slate-800"
+                    }`}
+                  >
+                    {selectedLawyerId === lawyer.id ? "Review requested" : "Request review"}
                   </button>
+                  {selectedLawyerId === lawyer.id && reviewRequest ? (
+                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-950">
+                      <p className="font-semibold">{reviewRequest.lawyerName} is selected.</p>
+                      <p>Consultation: {reviewRequest.consultationId}</p>
+                      <p>Payment order: {reviewRequest.status} · {reviewRequest.paymentId}</p>
+                    </div>
+                  ) : null}
                 </article>
               ))}
             </div>

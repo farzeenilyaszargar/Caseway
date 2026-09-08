@@ -98,6 +98,62 @@ export const lawyers: Lawyer[] = [
     availability: "Tomorrow",
     matters: 317,
   },
+  {
+    id: 7,
+    name: "Adv. Sana Qureshi",
+    city: "Chennai",
+    court: "Madras High Court",
+    specialty: "Documentation",
+    price: 899,
+    rating: 4.7,
+    experience: 8,
+    languages: ["English", "Hindi", "Tamil", "Urdu"],
+    response: "20 min",
+    availability: "Today",
+    matters: 256,
+  },
+  {
+    id: 8,
+    name: "Adv. Devika Nair",
+    city: "Pune",
+    court: "Pune District Court",
+    specialty: "Consumer",
+    price: 1099,
+    rating: 4.8,
+    experience: 6,
+    languages: ["English", "Hindi", "Marathi", "Malayalam"],
+    response: "16 min",
+    availability: "Today",
+    matters: 203,
+  },
+  {
+    id: 9,
+    name: "Adv. Vikram Desai",
+    city: "Ahmedabad",
+    court: "Gujarat High Court",
+    specialty: "Tax",
+    price: 2199,
+    rating: 4.9,
+    experience: 16,
+    languages: ["English", "Hindi", "Gujarati"],
+    response: "28 min",
+    availability: "This week",
+    matters: 584,
+  },
+  {
+    id: 10,
+    name: "Adv. Ishita Sharma",
+    city: "Jaipur",
+    court: "Rajasthan High Court",
+    specialty: "Family",
+    price: 1399,
+    rating: 4.6,
+    experience: 9,
+    languages: ["English", "Hindi", "Rajasthani"],
+    response: "30 min",
+    availability: "Tomorrow",
+    matters: 341,
+  },
 ];
 
 export const prompts = [
@@ -134,8 +190,20 @@ export const services = [
   },
 ];
 
-export const categories = ["All", "Property", "Criminal", "Family", "Tax", "Consumer", "Labour"];
-export const cities = ["All cities", "Bengaluru", "Delhi", "Mumbai", "Gurugram", "Hyderabad", "Kolkata"];
+export const categories = ["All", "Property", "Criminal", "Family", "Tax", "Consumer", "Labour", "Documentation"];
+export const cities = [
+  "All cities",
+  "Bengaluru",
+  "Delhi",
+  "Mumbai",
+  "Gurugram",
+  "Hyderabad",
+  "Kolkata",
+  "Chennai",
+  "Pune",
+  "Ahmedabad",
+  "Jaipur",
+];
 
 export const intakeQuestions = [
   {
