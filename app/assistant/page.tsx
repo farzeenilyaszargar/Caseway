@@ -616,7 +616,7 @@ export default function AssistantPage() {
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-2 focus-within:border-slate-300">
+                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-2">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
