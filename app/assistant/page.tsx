@@ -137,20 +137,30 @@ function FloatingSelect({
   onClose: () => void;
   onSelect: (value: string) => void;
 }) {
+  const [query, setQuery] = useState("");
   const selected = options.find((option) => option.value === value) || options[0];
+  const visibleOptions = options.filter((option) => {
+    const haystack = `${option.label} ${option.helper || ""}`.toLowerCase();
+    return haystack.includes(query.trim().toLowerCase());
+  });
+
+  function closeMenu() {
+    setQuery("");
+    onClose();
+  }
 
   return (
     <div
       className="relative min-w-0"
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) onClose();
+        if (!event.currentTarget.contains(event.relatedTarget)) closeMenu();
       }}
     >
       <button
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        onClick={() => (isOpen ? onClose() : onOpen())}
+        onClick={() => (isOpen ? closeMenu() : onOpen())}
         className="flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-slate-950"
       >
         <span className="min-w-0">
@@ -172,9 +182,25 @@ function FloatingSelect({
       {isOpen ? (
         <div
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 max-h-72 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-[1.25rem] border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
         >
-          {options.map((option) => {
+          <div className="sticky top-0 z-10 bg-white p-1">
+            <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500 focus-within:border-slate-950 focus-within:bg-white">
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+                <path d="M10.8 18a7.2 7.2 0 1 0 0-14.4 7.2 7.2 0 0 0 0 14.4Z" />
+              </svg>
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={`Search ${label.toLowerCase()}...`}
+                className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                autoFocus
+              />
+            </label>
+          </div>
+          <div className="max-h-60 overflow-y-auto pt-1">
+          {visibleOptions.length > 0 ? visibleOptions.map((option) => {
             const selectedOption = option.value === value;
             return (
               <button
@@ -185,7 +211,7 @@ function FloatingSelect({
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
                   onSelect(option.value);
-                  onClose();
+                  closeMenu();
                 }}
                 className={`flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
                   selectedOption ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
@@ -206,7 +232,13 @@ function FloatingSelect({
                 ) : null}
               </button>
             );
-          })}
+          }) : (
+            <div className="px-3 py-6 text-center">
+              <p className="text-sm font-semibold text-slate-900">No matches found</p>
+              <p className="mt-1 text-xs text-slate-400">Try a city, practice area, or filing route.</p>
+            </div>
+          )}
+          </div>
         </div>
       ) : null}
     </div>
