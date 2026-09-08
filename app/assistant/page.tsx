@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AppShell } from "../components/AppShell";
 import { categories, cities, lawyers as fallbackLawyers, type Lawyer } from "../data";
 
@@ -56,9 +56,52 @@ type ChatMessage = {
   text: string;
 };
 
+type AttachedDocument = {
+  id: string;
+  name: string;
+  size: number;
+};
+
+type SpeechRecognitionResultItem = {
+  transcript: string;
+};
+
+type SpeechRecognitionResultListItem = {
+  0: SpeechRecognitionResultItem;
+};
+
+type SpeechRecognitionEvent = {
+  results: ArrayLike<SpeechRecognitionResultListItem>;
+};
+
+type BrowserSpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
+
+type SpeechWindow = Window & {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+};
+
 const starterPrompts = ["File my income tax return", "Create a consumer complaint", "Prepare court filing packet"];
 
+function formatFileSize(size: number) {
+  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
+  return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
 export default function AssistantPage() {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const [mode, setMode] = useState<Mode>("agent");
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<Workflow["id"]>("income_tax_return");
@@ -77,6 +120,8 @@ export default function AssistantPage() {
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState("Ready");
   const [submission, setSubmission] = useState<string | null>(null);
+  const [attachedDocuments, setAttachedDocuments] = useState<AttachedDocument[]>([]);
+  const [isListening, setIsListening] = useState(false);
 
   const [category, setCategory] = useState("All");
   const [city, setCity] = useState("All cities");
@@ -152,10 +197,16 @@ export default function AssistantPage() {
 
   async function sendMessage(text = input) {
     const trimmed = text.trim();
-    if (!trimmed || isSending) return;
+    if ((!trimmed && attachedDocuments.length === 0) || isSending) return;
+    const documentSummary =
+      attachedDocuments.length > 0
+        ? `\n\nAttached documents: ${attachedDocuments.map((file) => `${file.name} (${formatFileSize(file.size)})`).join(", ")}`
+        : "";
+    const userText = `${trimmed || "Please review the attached documents."}${documentSummary}`;
 
-    setMessages((current) => [...current, { role: "user", text: trimmed }]);
+    setMessages((current) => [...current, { role: "user", text: userText }]);
     setInput("");
+    setAttachedDocuments([]);
     setIsSending(true);
     setSubmission(null);
     setStatus("Thinking");
@@ -165,7 +216,7 @@ export default function AssistantPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: trimmed,
+          message: userText,
           workflowId: selectedWorkflowId,
           integrationId: selectedIntegrationId,
           collected,
@@ -250,6 +301,64 @@ export default function AssistantPage() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void sendMessage();
+  }
+
+  function attachDocuments(files: FileList | null) {
+    if (!files?.length) return;
+    const selected = Array.from(files).map((file) => ({
+      id: `${file.name}-${file.size}-${file.lastModified}`,
+      name: file.name,
+      size: file.size,
+    }));
+    setAttachedDocuments((current) => {
+      const seen = new Set(current.map((file) => file.id));
+      return [...current, ...selected.filter((file) => !seen.has(file.id))].slice(0, 6);
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function removeDocument(id: string) {
+    setAttachedDocuments((current) => current.filter((file) => file.id !== id));
+  }
+
+  function toggleListening() {
+    const SpeechRecognition =
+      (window as SpeechWindow).SpeechRecognition || (window as SpeechWindow).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setStatus("Mic unavailable");
+      setMessages((current) => [
+        ...current,
+        { role: "system", text: "Voice input is not available in this browser. You can still type or attach documents." },
+      ]);
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-IN";
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript || "")
+        .join(" ")
+        .trim();
+      if (transcript) setInput(transcript);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => {
+      setIsListening(false);
+      setStatus("Mic stopped");
+    };
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+    setStatus("Listening");
   }
 
   async function requestReview(lawyer: Lawyer) {
@@ -414,20 +523,84 @@ export default function AssistantPage() {
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto flex max-w-3xl items-end rounded-[1.7rem] border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgb(15_23_42/0.10)] focus-within:border-slate-300 focus-within:shadow-[0_20px_60px_rgb(15_23_42/0.13)]">
+                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-[1.7rem] border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgb(15_23_42/0.10)] focus-within:border-slate-300 focus-within:shadow-[0_20px_60px_rgb(15_23_42/0.13)]">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
-                  <input
-                    id="agent-answer"
-                    value={input}
-                    onChange={(event) => setInput(event.target.value)}
-                    placeholder={agentTurn?.missingFields[0]?.placeholder || "Message NyayLink..."}
-                    className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-[15px] outline-none"
-                  />
-                  <button className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
-                    {isSending ? "..." : "Send"}
-                  </button>
+                  {attachedDocuments.length > 0 ? (
+                    <div className="mb-2 flex flex-wrap gap-2 px-1">
+                      {attachedDocuments.map((file) => (
+                        <span
+                          key={file.id}
+                          className="inline-flex max-w-full items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600"
+                        >
+                          <span className="truncate">{file.name}</span>
+                          <span className="shrink-0 text-slate-400">{formatFileSize(file.size)}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeDocument(file.id)}
+                            aria-label={`Remove ${file.name}`}
+                            className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-950"
+                          >
+                            x
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="flex items-end gap-1">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
+                      onChange={(event) => attachDocuments(event.target.files)}
+                      className="sr-only"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      aria-label="Attach documents"
+                      title="Attach documents"
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                    >
+                      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                        <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+                      </svg>
+                    </button>
+                    <input
+                      id="agent-answer"
+                      value={input}
+                      onChange={(event) => setInput(event.target.value)}
+                      placeholder={agentTurn?.missingFields[0]?.placeholder || "Message NyayLink..."}
+                      className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-[15px] outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleListening}
+                      aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                      title={isListening ? "Stop voice input" : "Start voice input"}
+                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-semibold ${
+                        isListening
+                          ? "bg-slate-950 text-white"
+                          : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                      }`}
+                    >
+                      {isListening ? (
+                        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                          <path d="M8 8h8v8H8z" />
+                        </svg>
+                      ) : (
+                        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                          <path d="M12 4a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V7a3 3 0 0 0-3-3Z" />
+                          <path d="M19 11a7 7 0 0 1-14 0M12 18v3M8.5 21h7" strokeLinecap="round" />
+                        </svg>
+                      )}
+                    </button>
+                    <button className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300">
+                      {isSending ? "..." : "Send"}
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
