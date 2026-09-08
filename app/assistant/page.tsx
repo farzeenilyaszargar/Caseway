@@ -735,23 +735,45 @@ export default function AssistantPage() {
                   The assistant collects details and prepares a reviewable packet before any filing handoff.
                 </p>
                 <div className="mt-4 space-y-2">
-                  {agentTurn?.workflow.fields.map((field) => (
-                    <div key={field.id} className="rounded-xl border border-transparent bg-slate-50 p-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold text-slate-500">{field.label}</p>
-                        <span className="text-[11px] font-semibold text-slate-400">
-                          {collected[field.id] ? "Done" : "Missing"}
-                        </span>
+                  {agentTurn?.workflow.fields.map((field) => {
+                    const isComplete = Boolean(collected[field.id]);
+                    const isActiveQuestion = isSending && agentTurn.missingFields[0]?.id === field.id;
+
+                    return (
+                      <div key={field.id} className="rounded-xl border border-transparent bg-slate-50 p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-semibold text-slate-500">{field.label}</p>
+                          <span
+                            aria-label={isActiveQuestion ? "Loading question" : isComplete ? "Completed" : "Missing"}
+                            className={`grid h-5 w-5 shrink-0 place-items-center rounded-full ${
+                              isActiveQuestion
+                                ? "bg-slate-100 text-slate-500"
+                                : isComplete
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-white text-slate-400 ring-1 ring-slate-200"
+                            }`}
+                          >
+                            {isActiveQuestion ? (
+                              <span className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
+                            ) : isComplete ? (
+                              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
+                                <path d="m5 12 4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            ) : (
+                              <span aria-hidden="true" className="text-xs font-semibold">?</span>
+                            )}
+                          </span>
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-sm text-slate-800">
+                          {collected[field.id]
+                            ? field.sensitive
+                              ? "Masked sensitive value"
+                              : collected[field.id]
+                            : field.question}
+                        </p>
                       </div>
-                      <p className="mt-1 line-clamp-2 text-sm text-slate-800">
-                        {collected[field.id]
-                          ? field.sensitive
-                            ? "Masked sensitive value"
-                            : collected[field.id]
-                          : field.question}
-                      </p>
-                    </div>
-                  )) || <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-500">No packet yet.</p>}
+                    );
+                  }) || <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-500">No packet yet.</p>}
                 </div>
               </div>
 
