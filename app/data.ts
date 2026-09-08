@@ -11,6 +11,7 @@ export type Lawyer = {
   response: string;
   availability: "Today" | "Tomorrow" | "This week";
   matters: number;
+  profileImage: string;
 };
 
 export const lawyers: Lawyer[] = [
@@ -27,6 +28,7 @@ export const lawyers: Lawyer[] = [
     response: "12 min",
     availability: "Today",
     matters: 438,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Aditi%20Menon&backgroundColor=f0fdf4",
   },
   {
     id: 2,
@@ -41,6 +43,7 @@ export const lawyers: Lawyer[] = [
     response: "18 min",
     availability: "Today",
     matters: 512,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Rohan%20Batra&backgroundColor=eff6ff",
   },
   {
     id: 3,
@@ -55,6 +58,7 @@ export const lawyers: Lawyer[] = [
     response: "25 min",
     availability: "Tomorrow",
     matters: 366,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Meera%20Iyer&backgroundColor=fdf2f8",
   },
   {
     id: 4,
@@ -69,6 +73,7 @@ export const lawyers: Lawyer[] = [
     response: "10 min",
     availability: "Today",
     matters: 291,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Kabir%20Sethi&backgroundColor=fff7ed",
   },
   {
     id: 5,
@@ -83,6 +88,7 @@ export const lawyers: Lawyer[] = [
     response: "35 min",
     availability: "This week",
     matters: 224,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Nandini%20Rao&backgroundColor=f0f9ff",
   },
   {
     id: 6,
@@ -97,6 +103,7 @@ export const lawyers: Lawyer[] = [
     response: "22 min",
     availability: "Tomorrow",
     matters: 317,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Arjun%20Chatterjee&backgroundColor=f7fee7",
   },
   {
     id: 7,
@@ -111,6 +118,7 @@ export const lawyers: Lawyer[] = [
     response: "20 min",
     availability: "Today",
     matters: 256,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Sana%20Qureshi&backgroundColor=fefce8",
   },
   {
     id: 8,
@@ -125,6 +133,7 @@ export const lawyers: Lawyer[] = [
     response: "16 min",
     availability: "Today",
     matters: 203,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Devika%20Nair&backgroundColor=ecfeff",
   },
   {
     id: 9,
@@ -139,6 +148,7 @@ export const lawyers: Lawyer[] = [
     response: "28 min",
     availability: "This week",
     matters: 584,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Vikram%20Desai&backgroundColor=f5f3ff",
   },
   {
     id: 10,
@@ -153,6 +163,7 @@ export const lawyers: Lawyer[] = [
     response: "30 min",
     availability: "Tomorrow",
     matters: 341,
+    profileImage: "https://api.dicebear.com/9.x/notionists/svg?seed=Ishita%20Sharma&backgroundColor=fef2f2",
   },
 ];
 

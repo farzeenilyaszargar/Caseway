@@ -94,6 +94,19 @@ type SpeechWindow = Window & {
 
 const starterPrompts = ["File my income tax return", "Create a consumer complaint", "Prepare court filing packet"];
 
+const lawyerAccentClasses = [
+  "from-emerald-50 via-white to-slate-50",
+  "from-sky-50 via-white to-slate-50",
+  "from-rose-50 via-white to-slate-50",
+  "from-amber-50 via-white to-slate-50",
+  "from-cyan-50 via-white to-slate-50",
+  "from-lime-50 via-white to-slate-50",
+  "from-yellow-50 via-white to-slate-50",
+  "from-teal-50 via-white to-slate-50",
+  "from-violet-50 via-white to-slate-50",
+  "from-red-50 via-white to-slate-50",
+];
+
 function formatFileSize(size: number) {
   if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
@@ -671,20 +684,25 @@ export default function AssistantPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Advocate review</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">Find lawyers</h1>
                 <p className="mt-1 text-sm text-slate-500">
-                  Match your prepared packet with a reviewed advocate profile.
+                  Match your prepared packet with a demo advocate profile.
                 </p>
               </div>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
-                {lawyerStatus} · {filteredLawyers.length} matches
-              </span>
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
+                  Demo profiles
+                </span>
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
+                  {lawyerStatus} · {filteredLawyers.length} matches
+                </span>
+              </div>
             </div>
 
-            <div className="mt-5 grid shrink-0 gap-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid shrink-0 gap-2 rounded-[1.35rem] border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
               <select
                 aria-label="City"
                 value={city}
                 onChange={(event) => setCity(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
+                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 focus:border-slate-950"
               >
                 {cities.map((item) => (
                   <option key={item}>{item}</option>
@@ -694,13 +712,13 @@ export default function AssistantPage() {
                 aria-label="Practice area"
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
+                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 focus:border-slate-950"
               >
                 {categories.map((item) => (
                   <option key={item}>{item}</option>
                 ))}
               </select>
-              <label className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300 hover:bg-white">
+              <label className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300">
                 Fee up to Rs {budget}
                 <input
                   type="range"
@@ -712,7 +730,7 @@ export default function AssistantPage() {
                   className="mt-1 w-full accent-slate-950"
                 />
               </label>
-              <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-white">
+              <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
                 <input
                   type="checkbox"
                   checked={urgentOnly}
@@ -727,28 +745,62 @@ export default function AssistantPage() {
               {filteredLawyers.map((lawyer) => (
                 <article
                   key={lawyer.id}
-                  className="rounded-[1.5rem] border border-slate-200 bg-white p-4 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50/60"
+                  className={`overflow-hidden rounded-[1.5rem] border border-slate-200 bg-gradient-to-br ${lawyerAccentClasses[(lawyer.id - 1) % lawyerAccentClasses.length]} p-4 transition hover:-translate-y-0.5 hover:border-slate-300`}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className="font-semibold text-slate-950">{lawyer.name}</h2>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {lawyer.specialty} · {lawyer.city}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400">{lawyer.court}</p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 px-3 py-2 text-right">
-                      <p className="text-sm font-semibold text-slate-950">Rs {lawyer.price}</p>
-                      <p className="text-[11px] font-medium text-slate-400">30 min</p>
+                  <div className="flex gap-4">
+                    <div
+                      role="img"
+                      aria-label={`Demo profile portrait for ${lawyer.name}`}
+                      className="h-20 w-20 shrink-0 rounded-[1.2rem] border border-white/80 bg-white bg-cover bg-center"
+                      style={{ backgroundImage: `url(${lawyer.profileImage})` }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h2 className="truncate font-semibold text-slate-950">{lawyer.name}</h2>
+                          <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-600">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
+                              <path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11Z" />
+                              <path d="M12 10.5h.01" strokeLinecap="round" />
+                            </svg>
+                            <span className="truncate">{lawyer.city} · {lawyer.court}</span>
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-white/80 bg-white/80 px-3 py-2 text-right">
+                          <p className="text-sm font-semibold text-slate-950">Rs {lawyer.price}</p>
+                          <p className="text-[11px] font-medium text-slate-400">30 min</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+                        <span className="rounded-full bg-slate-950 px-2.5 py-1 text-white">{lawyer.specialty}</span>
+                        <span className="rounded-full border border-white/80 bg-white/75 px-2.5 py-1 text-slate-700">
+                          Rating {lawyer.rating}
+                        </span>
+                        <span className="rounded-full border border-white/80 bg-white/75 px-2.5 py-1 text-slate-700">
+                          {lawyer.experience} yrs
+                        </span>
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-800">
+                          {lawyer.availability}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1">Rating {lawyer.rating}</span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1">{lawyer.experience} yrs</span>
-                    <span className="rounded-full bg-slate-950 px-2.5 py-1 text-white">{lawyer.availability}</span>
+                  <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                    <div className="rounded-2xl border border-white/80 bg-white/70 p-3">
+                      <p className="font-semibold text-slate-950">{lawyer.response}</p>
+                      <p className="mt-0.5 text-slate-500">response</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/80 bg-white/70 p-3">
+                      <p className="font-semibold text-slate-950">{lawyer.matters}</p>
+                      <p className="mt-0.5 text-slate-500">matters</p>
+                    </div>
+                    <div className="rounded-2xl border border-white/80 bg-white/70 p-3">
+                      <p className="font-semibold text-slate-950">{lawyer.languages.length}</p>
+                      <p className="mt-0.5 text-slate-500">languages</p>
+                    </div>
                   </div>
-                  <p className="mt-3 text-xs leading-5 text-slate-500">
-                    {lawyer.languages.join(", ")} · {lawyer.response} response · {lawyer.matters} matters
+                  <p className="mt-3 line-clamp-1 text-xs leading-5 text-slate-600">
+                    Speaks {lawyer.languages.join(", ")}
                   </p>
                   <button
                     onClick={() => void requestReview(lawyer)}
