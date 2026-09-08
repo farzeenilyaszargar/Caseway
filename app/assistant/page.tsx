@@ -92,6 +92,14 @@ type SpeechWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 };
 
+type DropdownKey = "workflow" | "integration" | "city" | "category" | null;
+
+type FloatingOption = {
+  value: string;
+  label: string;
+  helper?: string;
+};
+
 const starterPrompts = ["File my income tax return", "Create a consumer complaint", "Prepare court filing packet"];
 
 const lawyerAccentClasses = [
@@ -110,6 +118,99 @@ const lawyerAccentClasses = [
 function formatFileSize(size: number) {
   if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function FloatingSelect({
+  label,
+  value,
+  options,
+  isOpen,
+  onOpen,
+  onClose,
+  onSelect,
+}: {
+  label: string;
+  value: string;
+  options: FloatingOption[];
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onSelect: (value: string) => void;
+}) {
+  const selected = options.find((option) => option.value === value) || options[0];
+
+  return (
+    <div
+      className="relative min-w-0"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) onClose();
+      }}
+    >
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={() => (isOpen ? onClose() : onOpen())}
+        className="flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-slate-950"
+      >
+        <span className="min-w-0">
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</span>
+          <span className="mt-0.5 block truncate">{selected?.label || "Select"}</span>
+        </span>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className={`h-4 w-4 shrink-0 text-slate-400 transition ${isOpen ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        >
+          <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {isOpen ? (
+        <div
+          role="listbox"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 max-h-72 overflow-y-auto rounded-[1.25rem] border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
+        >
+          {options.map((option) => {
+            const selectedOption = option.value === value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={selectedOption}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  onSelect(option.value);
+                  onClose();
+                }}
+                className={`flex w-full items-center justify-between gap-3 rounded-2xl px-3 py-2.5 text-left transition ${
+                  selectedOption ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
+                }`}
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold">{option.label}</span>
+                  {option.helper ? (
+                    <span className={`mt-0.5 block truncate text-xs ${selectedOption ? "text-slate-300" : "text-slate-400"}`}>
+                      {option.helper}
+                    </span>
+                  ) : null}
+                </span>
+                {selectedOption ? (
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="m5 12 4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export default function AssistantPage() {
@@ -135,6 +236,7 @@ export default function AssistantPage() {
   const [submission, setSubmission] = useState<string | null>(null);
   const [attachedDocuments, setAttachedDocuments] = useState<AttachedDocument[]>([]);
   const [isListening, setIsListening] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
 
   const [category, setCategory] = useState("All");
   const [city, setCity] = useState("All cities");
@@ -161,6 +263,32 @@ export default function AssistantPage() {
   const activeIntegration = useMemo(
     () => agentTurn?.integration || integrationOptions.find((integration) => integration.id === selectedIntegrationId),
     [agentTurn?.integration, integrationOptions, selectedIntegrationId],
+  );
+  const workflowOptions = useMemo(
+    () =>
+      workflows.map((workflow) => ({
+        value: workflow.id,
+        label: workflow.name,
+        helper: workflow.forum,
+      })),
+    [workflows],
+  );
+  const integrationSelectOptions = useMemo(
+    () =>
+      integrationOptions.map((integration) => ({
+        value: integration.id,
+        label: integration.name,
+        helper: integration.status.replaceAll("-", " "),
+      })),
+    [integrationOptions],
+  );
+  const cityOptions = useMemo(
+    () => cities.map((item) => ({ value: item, label: item, helper: item === "All cities" ? "Across India" : "Local advocates" })),
+    [],
+  );
+  const categoryOptions = useMemo(
+    () => categories.map((item) => ({ value: item, label: item, helper: item === "All" ? "Every practice area" : "Specialist profiles" })),
+    [],
   );
 
   useEffect(() => {
@@ -464,35 +592,29 @@ export default function AssistantPage() {
                 </div>
 
                 <div className="mx-auto mt-4 grid max-w-3xl gap-2 md:grid-cols-2">
-                  <select
-                    aria-label="Filing type"
+                  <FloatingSelect
+                    label="Filing type"
                     value={selectedWorkflowId}
-                    onChange={(event) => switchWorkflow(event.target.value as Workflow["id"])}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
-                  >
-                    {workflows.map((workflow) => (
-                      <option key={workflow.id} value={workflow.id}>
-                        {workflow.name}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    aria-label="Integration route"
+                    options={workflowOptions}
+                    isOpen={openDropdown === "workflow"}
+                    onOpen={() => setOpenDropdown("workflow")}
+                    onClose={() => setOpenDropdown(null)}
+                    onSelect={(nextValue) => switchWorkflow(nextValue as Workflow["id"])}
+                  />
+                  <FloatingSelect
+                    label="Route"
                     value={selectedIntegrationId}
-                    onChange={(event) => {
-                      setSelectedIntegrationId(event.target.value as Integration["id"]);
+                    options={integrationSelectOptions}
+                    isOpen={openDropdown === "integration"}
+                    onOpen={() => setOpenDropdown("integration")}
+                    onClose={() => setOpenDropdown(null)}
+                    onSelect={(nextValue) => {
+                      setSelectedIntegrationId(nextValue as Integration["id"]);
                       setAgentTurn(null);
                       setConsent(false);
                       setSubmission(null);
                     }}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-slate-950 focus:bg-white"
-                  >
-                    {integrationOptions.map((integration) => (
-                      <option key={integration.id} value={integration.id}>
-                        {integration.name}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 
@@ -698,26 +820,24 @@ export default function AssistantPage() {
             </div>
 
             <div className="mt-5 grid shrink-0 gap-2 rounded-[1.35rem] border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
-              <select
-                aria-label="City"
+              <FloatingSelect
+                label="City"
                 value={city}
-                onChange={(event) => setCity(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 focus:border-slate-950"
-              >
-                {cities.map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-              <select
-                aria-label="Practice area"
+                options={cityOptions}
+                isOpen={openDropdown === "city"}
+                onOpen={() => setOpenDropdown("city")}
+                onClose={() => setOpenDropdown(null)}
+                onSelect={setCity}
+              />
+              <FloatingSelect
+                label="Practice"
                 value={category}
-                onChange={(event) => setCategory(event.target.value)}
-                className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 focus:border-slate-950"
-              >
-                {categories.map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
+                options={categoryOptions}
+                isOpen={openDropdown === "category"}
+                onOpen={() => setOpenDropdown("category")}
+                onClose={() => setOpenDropdown(null)}
+                onSelect={setCategory}
+              />
               <label className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300">
                 Fee up to Rs {budget}
                 <input
