@@ -73,6 +73,15 @@ type FloatingOption = {
 
 const starterPrompts = ["File my income tax return", "Create a consumer complaint", "Prepare court filing packet"];
 
+const composerPlaceholders = [
+  "Help me file documents",
+  "What is IPC?",
+  "Draft a legal notice reply",
+  "Help me prepare a consumer complaint",
+  "What documents do I need for tax filing?",
+  "Summarize my case papers",
+];
+
 const lawyerAccentClasses = [
   "from-emerald-50 via-white to-slate-50",
   "from-sky-50 via-white to-slate-50",
@@ -241,6 +250,7 @@ export default function AssistantPage() {
   const [submission, setSubmission] = useState<string | null>(null);
   const [attachedDocuments, setAttachedDocuments] = useState<AttachedDocument[]>([]);
   const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   const [category, setCategory] = useState("All");
   const [city, setCity] = useState("All cities");
@@ -304,6 +314,14 @@ export default function AssistantPage() {
     }
 
     void loadWorkflows();
+  }, []);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setPlaceholderIndex((current) => (current + 1) % composerPlaceholders.length);
+    }, 2200);
+
+    return () => window.clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -525,6 +543,7 @@ export default function AssistantPage() {
   );
   const canSend = input.trim().length > 0 || attachedDocuments.length > 0;
   const noChatStarted = messages.length === 0;
+  const composerPlaceholder = agentTurn?.missingFields[0]?.placeholder || composerPlaceholders[placeholderIndex];
 
   return (
     <AppShell headerAction={headerToggle}>
@@ -665,7 +684,7 @@ export default function AssistantPage() {
                       id="agent-answer"
                       value={input}
                       onChange={(event) => setInput(event.target.value)}
-                      placeholder={agentTurn?.missingFields[0]?.placeholder || "Message NyayLink..."}
+                      placeholder={composerPlaceholder}
                       className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-[15px] outline-none"
                     />
                     <button
