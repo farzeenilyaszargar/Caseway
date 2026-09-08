@@ -13,20 +13,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'NyayLink | Indian Legal Help',
+  title: 'NyayLink | AI Law Agent',
   description:
-    'A bilingual full-stack platform for Indian legal guidance, document workflows, and advocate consultation discovery.',
+    'A clean chat-first AI law agent for Indian filing workflows and advocate review.',
   openGraph: {
-    title: 'NyayLink | Indian Legal Help',
+    title: 'NyayLink | AI Law Agent',
     description:
-      'Guided legal intake and Vakil Connect consultation discovery for Indian citizens.',
+      'Chat-first Indian legal filing workflows with advocate matching.',
     images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NyayLink | Indian Legal Help',
+    title: 'NyayLink | AI Law Agent',
     description:
-      'Guided legal intake and advocate consultation discovery for Indian citizens.',
+      'Chat-first Indian legal filing workflows with advocate matching.',
     images: ['/og.png'],
   },
 };

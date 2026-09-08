@@ -303,8 +303,8 @@ export default function AssistantPage() {
 
   return (
     <AppShell>
-      <section className="mx-auto flex min-h-[calc(100vh-65px)] max-w-7xl flex-col px-3 py-3 sm:px-5 lg:px-8">
-        <div className="mx-auto grid w-full max-w-sm grid-cols-2 rounded-full border border-slate-200 bg-white p-1 shadow-sm">
+      <section className="mx-auto flex min-h-[calc(100vh-65px)] max-w-7xl flex-col px-3 py-4 sm:px-5 lg:px-8">
+        <div className="mx-auto grid w-full max-w-sm grid-cols-2 rounded-full border border-slate-200/90 bg-white/92 p-1 shadow-[0_10px_35px_rgb(15_23_42/0.06)]">
           {[
             ["agent", "AI Law Agent"],
             ["lawyers", "Find Lawyers"],
@@ -312,8 +312,10 @@ export default function AssistantPage() {
             <button
               key={value}
               onClick={() => setMode(value as Mode)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                mode === value ? "bg-slate-950 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+              className={`rounded-full px-4 py-2.5 text-sm font-medium ${
+                mode === value
+                  ? "bg-slate-950 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
               }`}
             >
               {label}
@@ -322,17 +324,19 @@ export default function AssistantPage() {
         </div>
 
         {mode === "agent" ? (
-          <div className="mt-3 grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-            <div className="flex min-h-0 flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/80">
-              <div className="px-4 py-4 sm:px-6">
+          <div className="mt-5 grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_18px_60px_rgb(15_23_42/0.07)] ring-1 ring-slate-200/75">
+              <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
                 <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <h1 className="text-lg font-semibold text-slate-950 sm:text-xl">How can I help you file today?</h1>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <h1 className="text-lg font-semibold tracking-normal text-slate-950 sm:text-xl">
+                      How can I help you file today?
+                    </h1>
+                    <p className="mt-1 truncate text-sm text-slate-500">
                       {activeWorkflow?.name || "Choose a filing type"} via {activeIntegration?.name || "selected route"}
                     </p>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
+                  <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
                     {status} · {agentTurn?.completion || 0}%
                   </span>
                 </div>
@@ -342,7 +346,7 @@ export default function AssistantPage() {
                     aria-label="Filing type"
                     value={selectedWorkflowId}
                     onChange={(event) => switchWorkflow(event.target.value as Workflow["id"])}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-[#10a37f] focus:bg-white"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
                   >
                     {workflows.map((workflow) => (
                       <option key={workflow.id} value={workflow.id}>
@@ -359,7 +363,7 @@ export default function AssistantPage() {
                       setConsent(false);
                       setSubmission(null);
                     }}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-[#10a37f] focus:bg-white"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
                   >
                     {integrationOptions.map((integration) => (
                       <option key={integration.id} value={integration.id}>
@@ -370,20 +374,25 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="min-h-[380px] flex-1 overflow-y-auto px-3 py-4 sm:px-6">
-                <div className="mx-auto max-w-3xl space-y-5">
+              <div className="min-h-[420px] flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
+                <div className="mx-auto max-w-3xl space-y-6">
                   {messages.map((message, index) => (
                     <div
                       key={`${message.role}-${index}`}
-                      className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                      className={`group flex items-start gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                     >
+                      {message.role !== "user" ? (
+                        <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-950 text-[11px] font-semibold text-white">
+                          न
+                        </div>
+                      ) : null}
                       <div
-                        className={`max-w-[86%] whitespace-pre-line px-4 py-3 text-[15px] leading-6 ${
+                        className={`max-w-[84%] whitespace-pre-line px-4 py-3 text-[15px] leading-6 ${
                           message.role === "user"
-                            ? "rounded-3xl bg-[#10a37f] text-white shadow-sm"
+                            ? "rounded-[1.35rem] bg-[#10a37f] text-white shadow-sm"
                             : message.role === "system"
-                              ? "rounded-2xl border border-slate-200 bg-slate-50 text-slate-600"
-                              : "rounded-3xl bg-[#f4f4f4] text-slate-900"
+                              ? "rounded-[1.35rem] border border-slate-200 bg-slate-50 text-slate-600"
+                              : "rounded-[1.35rem] bg-[#f4f4f4] text-slate-900"
                         }`}
                       >
                         {message.text}
@@ -393,19 +402,19 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="px-3 pb-4 sm:px-6">
+              <div className="bg-white px-3 pb-5 sm:px-6">
                 <div className="mx-auto mb-3 flex max-w-3xl gap-2 overflow-x-auto">
                   {starterPrompts.map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => void sendMessage(prompt)}
-                      className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50"
+                      className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 shadow-sm hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
                     >
                       {prompt}
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto flex max-w-3xl items-end rounded-[1.6rem] border border-slate-200 bg-white p-2 shadow-[0_8px_30px_rgb(15_23_42/0.08)] focus-within:border-slate-300">
+                <form onSubmit={onSubmit} className="mx-auto flex max-w-3xl items-end rounded-[1.7rem] border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgb(15_23_42/0.10)] focus-within:border-slate-300 focus-within:shadow-[0_20px_60px_rgb(15_23_42/0.13)]">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
@@ -416,7 +425,7 @@ export default function AssistantPage() {
                     placeholder={agentTurn?.missingFields[0]?.placeholder || "Message NyayLink..."}
                     className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-[15px] outline-none"
                   />
-                  <button className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
+                  <button className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
                     {isSending ? "..." : "Send"}
                   </button>
                 </form>
@@ -424,7 +433,7 @@ export default function AssistantPage() {
             </div>
 
             <aside className="min-h-0 space-y-3 overflow-y-auto">
-              <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-[1.7rem] border border-slate-200/80 bg-white p-4 shadow-sm">
                 <h2 className="text-sm font-semibold text-slate-950">Review packet</h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   {activeIntegration
@@ -433,7 +442,7 @@ export default function AssistantPage() {
                 </p>
                 <div className="mt-4 space-y-2">
                   {agentTurn?.workflow.fields.map((field) => (
-                    <div key={field.id} className="rounded-2xl bg-slate-50 p-3">
+                    <div key={field.id} className="rounded-2xl border border-transparent bg-slate-50 p-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-semibold text-slate-500">{field.label}</p>
                         <span className="text-[11px] font-semibold text-slate-400">
@@ -452,7 +461,7 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="rounded-[1.7rem] border border-slate-200/80 bg-white p-4 shadow-sm">
                 <h2 className="text-sm font-semibold text-slate-950">Submit</h2>
                 {agentTurn?.draftPacket ? (
                   <div className="mt-3 space-y-3">
@@ -468,7 +477,7 @@ export default function AssistantPage() {
                     <button
                       onClick={() => void submitPacket()}
                       disabled={!consent || isSubmitting}
-                      className="w-full rounded-2xl bg-[#10a37f] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0d8f6f] disabled:cursor-not-allowed disabled:bg-slate-300"
+                      className="w-full rounded-2xl bg-[#10a37f] px-4 py-3 text-sm font-semibold text-white hover:bg-[#0d8f6f] disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       {isSubmitting ? "Queueing..." : "Queue filing"}
                     </button>
@@ -483,23 +492,26 @@ export default function AssistantPage() {
             </aside>
           </div>
         ) : (
-          <div className="mx-auto mt-4 w-full max-w-5xl flex-1 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-4">
+          <div className="mx-auto mt-5 w-full max-w-6xl flex-1 rounded-[2rem] bg-white p-4 shadow-[0_18px_60px_rgb(15_23_42/0.07)] ring-1 ring-slate-200/75 sm:p-6">
+            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
-                <h1 className="text-xl font-semibold text-slate-950">Find lawyers</h1>
-                <p className="mt-1 text-sm text-slate-500">Match your prepared packet with an advocate for review.</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Advocate review</p>
+                <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">Find lawyers</h1>
+                <p className="mt-1 text-sm text-slate-500">
+                  Match your prepared packet with a reviewed advocate profile.
+                </p>
               </div>
-              <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
                 {lawyerStatus} · {filteredLawyers.length} matches
               </span>
             </div>
 
-            <div className="mt-4 grid gap-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid gap-2 md:grid-cols-[1fr_1fr_1fr_auto]">
               <select
                 aria-label="City"
                 value={city}
                 onChange={(event) => setCity(event.target.value)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium outline-none focus:border-[#10a37f]"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
               >
                 {cities.map((item) => (
                   <option key={item}>{item}</option>
@@ -509,13 +521,13 @@ export default function AssistantPage() {
                 aria-label="Practice area"
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium outline-none focus:border-[#10a37f]"
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800 outline-none hover:border-slate-300 hover:bg-white focus:border-[#10a37f] focus:bg-white"
               >
                 {categories.map((item) => (
                   <option key={item}>{item}</option>
                 ))}
               </select>
-              <label className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500">
+              <label className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300 hover:bg-white">
                 Fee up to Rs {budget}
                 <input
                   type="range"
@@ -527,7 +539,7 @@ export default function AssistantPage() {
                   className="mt-1 w-full accent-[#10a37f]"
                 />
               </label>
-              <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700">
+              <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 hover:bg-white">
                 <input
                   type="checkbox"
                   checked={urgentOnly}
@@ -538,37 +550,43 @@ export default function AssistantPage() {
               </label>
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
               {filteredLawyers.map((lawyer) => (
-                <article key={lawyer.id} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <article
+                  key={lawyer.id}
+                  className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_16px_35px_rgb(15_23_42/0.08)]"
+                >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <h2 className="font-semibold text-slate-950">{lawyer.name}</h2>
                       <p className="mt-1 text-sm text-slate-500">
                         {lawyer.specialty} · {lawyer.city}
                       </p>
                       <p className="mt-1 text-xs text-slate-400">{lawyer.court}</p>
                     </div>
-                    <p className="text-sm font-semibold text-slate-950">Rs {lawyer.price}</p>
+                    <div className="rounded-2xl bg-slate-50 px-3 py-2 text-right">
+                      <p className="text-sm font-semibold text-slate-950">Rs {lawyer.price}</p>
+                      <p className="text-[11px] font-medium text-slate-400">30 min</p>
+                    </div>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-slate-600">
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">Rating {lawyer.rating}</span>
                     <span className="rounded-full bg-slate-100 px-2.5 py-1">{lawyer.experience} yrs</span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1">{lawyer.availability}</span>
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">{lawyer.availability}</span>
                   </div>
                   <p className="mt-3 text-xs leading-5 text-slate-500">
                     {lawyer.languages.join(", ")} · {lawyer.response} response · {lawyer.matters} matters
                   </p>
                   <button
                     onClick={() => void requestReview(lawyer)}
-                    className={`mt-4 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white ${
+                    className={`mt-4 w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white ${
                       selectedLawyerId === lawyer.id ? "bg-[#10a37f]" : "bg-slate-950 hover:bg-slate-800"
                     }`}
                   >
                     {selectedLawyerId === lawyer.id ? "Review requested" : "Request review"}
                   </button>
                   {selectedLawyerId === lawyer.id && reviewRequest ? (
-                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-950">
+                    <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-950">
                       <p className="font-semibold">{reviewRequest.lawyerName} is selected.</p>
                       <p>Consultation: {reviewRequest.consultationId}</p>
                       <p>Payment order: {reviewRequest.status} · {reviewRequest.paymentId}</p>

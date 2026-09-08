@@ -3,19 +3,19 @@ import Link from "next/link";
 export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <main className="app-canvas min-h-screen text-slate-950">
-      <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Link className="flex items-center gap-3" href="/">
-            <div className="grid h-8 w-8 place-items-center rounded-lg bg-slate-950 text-sm font-semibold text-white shadow-sm">
+            <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-950 text-sm font-semibold text-white shadow-sm">
               न
             </div>
             <div>
-              <p className="text-sm font-semibold leading-tight">NyayLink</p>
-              <p className="text-xs text-slate-500">File by chat</p>
+              <p className="text-sm font-semibold leading-tight tracking-normal text-slate-950">NyayLink</p>
+              <p className="text-xs font-medium text-slate-500">File by chat</p>
             </div>
           </Link>
           <p className="hidden text-xs font-medium text-slate-500 sm:block">
-            AI filing and advocate matching
+            AI filing · Advocate review
           </p>
         </div>
       </header>
