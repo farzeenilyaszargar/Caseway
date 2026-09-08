@@ -8,7 +8,7 @@ const capabilities = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#f7f7f8] text-slate-950">
+    <main className="min-h-screen bg-white text-slate-950">
       <header className="border-b border-slate-200/70 bg-white/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link className="flex items-center" href="/" aria-label="NyayLink home">
@@ -27,40 +27,48 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="mx-auto flex min-h-[calc(100vh-73px)] max-w-7xl flex-col justify-between px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-        <div className="max-w-5xl">
-          <p className="text-sm font-medium text-slate-500">NyayLink</p>
-          <h1 className="mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-normal text-slate-950 sm:text-7xl lg:text-8xl">
+      <section className="mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-10 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.92fr_1.08fr] lg:px-8">
+        <div className="max-w-2xl">
+          <p className="text-xs font-medium text-slate-500">NyayLink</p>
+          <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-[1.08] tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">
             Legal filing, shaped like a conversation.
           </h1>
-          <p className="mt-8 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">
+          <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
             An AI law agent that gathers details, organizes documents, and helps you move from scattered paperwork to a review-ready filing packet.
           </p>
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/assistant"
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               Start with AI Law Agent
             </Link>
             <Link
               href="/assistant"
-              className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
+              className="rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
             >
               Find lawyers
             </Link>
           </div>
+
+          <div className="mt-12 grid gap-3 border-t border-slate-200 pt-5">
+            {capabilities.map((item) => (
+              <div key={item} className="flex items-center justify-between gap-4 py-2">
+                <p className="text-sm font-medium text-slate-900">{item}</p>
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-16 grid gap-3 border-t border-slate-200 pt-6 md:grid-cols-3">
-          {capabilities.map((item) => (
-            <div key={item} className="flex items-center justify-between gap-4 py-3">
-              <p className="text-base font-medium text-slate-900">{item}</p>
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          ))}
+        <div className="relative hidden min-h-[520px] justify-end overflow-hidden lg:flex">
+          <div
+            aria-hidden="true"
+            className="h-[calc(100vh-120px)] max-h-[760px] min-h-[520px] w-full bg-contain bg-right-bottom bg-no-repeat"
+            style={{ backgroundImage: "url('/lady-justice-hero.png')" }}
+          />
         </div>
       </section>
     </main>
