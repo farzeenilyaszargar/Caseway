@@ -853,9 +853,12 @@ export default function AssistantPage() {
                     <button
                       key={prompt}
                       onClick={() => void sendMessage(prompt)}
-                      className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                      className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-950"
                     >
-                      {prompt}
+                      <span aria-hidden="true" className="text-[15px] leading-none text-slate-400">
+                        ↳
+                      </span>
+                      <span>{prompt}</span>
                     </button>
                   ))}
                 </div>
