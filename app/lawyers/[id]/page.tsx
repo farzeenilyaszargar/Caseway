@@ -42,7 +42,7 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
   return (
     <AppShell>
       <section className="mx-auto grid h-full max-w-7xl gap-4 overflow-y-auto px-4 py-4 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:px-8">
-        <aside className="rounded-2xl border border-slate-200 bg-white p-4">
+        <aside className="rounded-lg border border-slate-200 bg-white p-4">
           <Link href="/assistant" className="text-sm font-medium text-slate-500 hover:text-slate-950">
             Back to lawyers
           </Link>
@@ -50,7 +50,7 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
             <div
               role="img"
               aria-label={`Demo profile portrait for ${lawyer.name}`}
-              className="h-20 w-20 rounded-xl border border-slate-200 bg-slate-50 bg-cover bg-center"
+              className="h-20 w-20 rounded-lg border border-slate-200 bg-slate-50 bg-cover bg-center"
               style={{ backgroundImage: `url(${lawyer.profileImage})` }}
             />
             <div className="min-w-0">
@@ -59,19 +59,19 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
             </div>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-2 text-sm">
-            <div className="rounded-xl bg-slate-50 p-3">
+            <div className="rounded-lg bg-slate-50 p-3">
               <p className="font-semibold text-slate-950">{lawyer.rating}</p>
               <p className="text-xs text-slate-500">Rating</p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-3">
+            <div className="rounded-lg bg-slate-50 p-3">
               <p className="font-semibold text-slate-950">{lawyer.experience} yrs</p>
               <p className="text-xs text-slate-500">Experience</p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-3">
+            <div className="rounded-lg bg-slate-50 p-3">
               <p className="font-semibold text-slate-950">{lawyer.response}</p>
               <p className="text-xs text-slate-500">Response</p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-3">
+            <div className="rounded-lg bg-slate-50 p-3">
               <p className="font-semibold text-slate-950">Rs {lawyer.price}</p>
               <p className="text-xs text-slate-500">Review fee</p>
             </div>
@@ -82,19 +82,19 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
         </aside>
 
         <div className="grid min-h-[720px] gap-4 lg:grid-rows-[auto_minmax(0,1fr)]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-lg border border-slate-200 bg-white p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold text-slate-950">Case documents</h2>
                 <p className="mt-1 text-sm text-slate-500">Shared packet for advocate review and filing readiness.</p>
               </div>
-              <button className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50">
+              <button className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50">
                 Upload document
               </button>
             </div>
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               {caseDocuments.map((document) => (
-                <article key={document.name} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <article key={document.name} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                   <p className="font-semibold text-slate-950">{document.name}</p>
                   <p className="mt-1 text-xs font-medium text-emerald-700">{document.status}</p>
                   <p className="mt-2 text-xs leading-5 text-slate-500">{document.detail}</p>
@@ -103,7 +103,7 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-col rounded-2xl border border-slate-200 bg-white">
+          <div className="flex min-h-0 flex-col rounded-lg border border-slate-200 bg-white">
             <div className="border-b border-slate-100 px-4 py-3">
               <h2 className="text-lg font-semibold text-slate-950">Chat with {lawyer.name.replace("Adv. ", "")}</h2>
               <p className="mt-1 text-sm text-slate-500">Demo secure conversation linked to the current filing packet.</p>
@@ -122,7 +122,7 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
               ))}
             </div>
             <form className="border-t border-slate-100 p-3">
-              <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2">
+              <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-2">
                 <button type="button" className="grid h-10 w-10 place-items-center rounded-full text-slate-500 hover:bg-slate-100">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path d="M12 5v14M5 12h14" strokeLinecap="round" />

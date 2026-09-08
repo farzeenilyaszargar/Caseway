@@ -145,7 +145,7 @@ function FloatingSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={() => (isOpen ? closeMenu() : onOpen())}
-        className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-slate-950"
+        className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-slate-50 focus:border-slate-950"
       >
         <span className="min-w-0">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</span>
@@ -166,7 +166,7 @@ function FloatingSelect({
       {isOpen ? (
         <div
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-xl border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-lg border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
         >
           {searchable ? (
             <div className="sticky top-0 z-10 border-b border-slate-100 bg-white px-2 py-2">
@@ -554,7 +554,7 @@ export default function AssistantPage() {
       >
         {mode === "agent" ? (
           <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
-            <div className="flex min-h-0 flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200/75">
+            <div className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/75">
               <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
                 <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -635,7 +635,7 @@ export default function AssistantPage() {
                     </button>
                   ))}
                 </div>
-                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-2">
+                <form onSubmit={onSubmit} className="mx-auto max-w-3xl rounded-lg border border-slate-200 bg-white p-2">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message NyayLink filing agent
                   </label>
@@ -708,7 +708,7 @@ export default function AssistantPage() {
             </div>
 
             <aside className="hidden min-h-0 space-y-3 overflow-y-auto lg:block">
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
+              <div className="rounded-lg border border-slate-200/80 bg-white p-4">
                 <h2 className="text-sm font-semibold text-slate-950">Review packet</h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   The assistant collects details and prepares a reviewable packet before any filing handoff.
@@ -734,7 +734,7 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
+              <div className="rounded-lg border border-slate-200/80 bg-white p-4">
                 <h2 className="text-sm font-semibold text-slate-950">Submit</h2>
                 {agentTurn?.draftPacket ? (
                   <div className="mt-3 space-y-3">
@@ -765,7 +765,7 @@ export default function AssistantPage() {
             </aside>
           </div>
         ) : (
-          <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
+          <div className="mx-auto w-full max-w-6xl rounded-lg bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">Find lawyers</h1>
@@ -783,7 +783,7 @@ export default function AssistantPage() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid gap-2 rounded-lg border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
               <FloatingSelect
                 label="City"
                 value={city}
@@ -803,7 +803,7 @@ export default function AssistantPage() {
                 onClose={() => setOpenDropdown(null)}
                 onSelect={setCategory}
               />
-              <label className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300">
+              <label className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300">
                 Fee up to Rs {budget}
                 <input
                   type="range"
@@ -815,7 +815,7 @@ export default function AssistantPage() {
                   className="mt-1 w-full accent-slate-950"
                 />
               </label>
-              <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
+              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
                 <input
                   type="checkbox"
                   checked={urgentOnly}
@@ -830,7 +830,7 @@ export default function AssistantPage() {
               {filteredLawyers.map((lawyer) => (
                 <article
                   key={lawyer.id}
-                  className={`overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br ${lawyerAccentClasses[(lawyer.id - 1) % lawyerAccentClasses.length]} p-4 transition hover:-translate-y-0.5 hover:border-slate-300`}
+                  className={`overflow-hidden rounded-lg border border-slate-200 bg-gradient-to-br ${lawyerAccentClasses[(lawyer.id - 1) % lawyerAccentClasses.length]} p-4 transition hover:-translate-y-0.5 hover:border-slate-300`}
                 >
                   <div className="flex gap-4">
                     <div
@@ -902,7 +902,7 @@ export default function AssistantPage() {
         )}
         {selectedLawyer ? (
           <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/20 px-4 backdrop-blur-md">
-            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-4 ring-1 ring-slate-950/5 sm:p-5">
+            <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-4 ring-1 ring-slate-950/5 sm:p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
                   <div

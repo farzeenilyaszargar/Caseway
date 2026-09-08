@@ -90,7 +90,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
             {profileOpen ? (
               <div
                 role="menu"
-                className="absolute right-0 top-[calc(100%+10px)] z-50 w-72 rounded-2xl border border-slate-200 bg-white p-2 ring-1 ring-slate-950/5"
+                className="absolute right-0 top-[calc(100%+10px)] z-50 w-72 rounded-lg border border-slate-200 bg-white p-2 ring-1 ring-slate-950/5"
               >
                 <div className="flex items-center gap-3 border-b border-slate-100 px-3 py-3">
                   <span
@@ -110,7 +110,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
                       type="button"
                       role="menuitem"
                       onMouseDown={(event) => event.preventDefault()}
-                      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
+                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition ${
                         action.label === "Log out"
                           ? "text-red-600 hover:bg-red-50"
                           : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
