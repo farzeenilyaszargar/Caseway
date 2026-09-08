@@ -189,8 +189,8 @@ function FloatingSelect({
           className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-xl border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
         >
           {searchable ? (
-            <div className="sticky top-0 z-10 bg-white p-1">
-              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500 focus-within:border-slate-950 focus-within:bg-white">
+            <div className="sticky top-0 z-10 border-b border-slate-100 bg-white px-2 py-2">
+              <label className="flex items-center gap-2 text-slate-500">
                 <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <path d="m21 21-4.3-4.3" strokeLinecap="round" />
                   <path d="M10.8 18a7.2 7.2 0 1 0 0-14.4 7.2 7.2 0 0 0 0 14.4Z" />
@@ -199,51 +199,53 @@ function FloatingSelect({
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder={`Search ${label.toLowerCase()}...`}
-                  className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                  className="min-w-0 flex-1 bg-transparent py-1 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
                   autoFocus
                 />
               </label>
             </div>
           ) : null}
           <div className="max-h-60 overflow-y-auto pt-1">
-          {visibleOptions.length > 0 ? visibleOptions.map((option) => {
-            const selectedOption = option.value === value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                role="option"
-                aria-selected={selectedOption}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => {
-                  onSelect(option.value);
-                  closeMenu();
-                }}
-                className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition ${
-                  selectedOption ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
-                }`}
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold">{option.label}</span>
-                  {option.helper ? (
-                    <span className={`mt-0.5 block truncate text-xs ${selectedOption ? "text-slate-300" : "text-slate-400"}`}>
-                      {option.helper}
+            {visibleOptions.length > 0 ? (
+              visibleOptions.map((option) => {
+                const selectedOption = option.value === value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="option"
+                    aria-selected={selectedOption}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      onSelect(option.value);
+                      closeMenu();
+                    }}
+                    className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition ${
+                      selectedOption ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
+                    }`}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold">{option.label}</span>
+                      {option.helper ? (
+                        <span className={`mt-0.5 block truncate text-xs ${selectedOption ? "text-slate-300" : "text-slate-400"}`}>
+                          {option.helper}
+                        </span>
+                      ) : null}
                     </span>
-                  ) : null}
-                </span>
-                {selectedOption ? (
-                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="m5 12 4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                ) : null}
-              </button>
-            );
-          }) : (
-            <div className="px-3 py-6 text-center">
-              <p className="text-sm font-semibold text-slate-900">No matches found</p>
-              <p className="mt-1 text-xs text-slate-400">Try a city, practice area, or filing route.</p>
-            </div>
-          )}
+                    {selectedOption ? (
+                      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="m5 12 4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : null}
+                  </button>
+                );
+              })
+            ) : (
+              <div className="px-3 py-6 text-center">
+                <p className="text-sm font-semibold text-slate-900">No matches found</p>
+                <p className="mt-1 text-xs text-slate-400">Try another city.</p>
+              </div>
+            )}
           </div>
         </div>
       ) : null}
