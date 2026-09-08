@@ -293,6 +293,18 @@ export const caseFiles = [
 
 export function makeReply(input: string) {
   const lower = input.toLowerCase();
+  if (lower.includes("ipc") || lower.includes("indian penal code") || lower.includes("bns") || lower.includes("bharatiya nyaya sanhita")) {
+    return "IPC means the Indian Penal Code, 1860, which was India’s main criminal offence law for many years. For new offences and procedure after the criminal-law transition, users often need to check the Bharatiya Nyaya Sanhita, 2023 as well. Tell me the section or incident, and I can explain the offence, likely documents, police/court route, and when an advocate should review it.";
+  }
+  if (lower.includes("fir") || lower.includes("police complaint")) {
+    return "An FIR is the police record that starts investigation for a cognizable offence. Keep the incident timeline, place, names, witnesses, screenshots, medical records if any, and ID proof ready. If police refuse registration, you can usually escalate to senior police officers or approach the magistrate, but an advocate should review urgent criminal matters.";
+  }
+  if (lower.includes("bail")) {
+    return "Bail is a request to be released from custody while the case continues. The exact route depends on the offence, arrest stage, court, and whether anticipatory or regular bail is needed. Useful details include FIR number, sections, arrest status, court location, prior orders, and the facts showing cooperation or low flight risk.";
+  }
+  if (lower.includes("court") || lower.includes("district court") || lower.includes("high court") || lower.includes("supreme court")) {
+    return "Indian court route depends on subject, territory, claim value, and relief. District courts usually handle local civil/criminal matters, High Courts handle appeals, writs, and supervisory jurisdiction, and the Supreme Court handles constitutional and final appellate issues. Share the dispute type and city, and I can map the likely forum and documents.";
+  }
   if (lower.includes("consumer")) {
     return "For a consumer complaint in India, start with invoices, warranty records, messages, and a written demand to the seller. If unresolved, the route usually moves to the District Consumer Commission based on claim value and location. I can prepare a filing checklist and then suggest consumer-law advocates nearby.";
   }

@@ -46,15 +46,35 @@ type AgentTurn = {
   nextQuestion: string;
   completion: number;
   readyToReview: boolean;
-  draftPacket: {
-    title: string;
-    forum: string;
-  } | null;
+  draftPacket: FilingPacket | null;
+};
+
+type FilingPacket = {
+  title: string;
+  forum: string;
+  adapter: string;
+  mode: string;
+  fields: Array<{
+    id: string;
+    label: string;
+    value: string;
+    sensitive: boolean;
+  }>;
+  declaration: string;
+  payloadPreview: Record<string, string>;
+};
+
+type ChatAction = {
+  label: string;
+  type: "choose_workflow" | "final_confirm";
+  workflowId?: Workflow["id"];
 };
 
 type ChatMessage = {
   role: "assistant" | "user" | "system";
   text: string;
+  actions?: ChatAction[];
+  packet?: FilingPacket;
 };
 
 type AttachedDocument = {
@@ -63,7 +83,7 @@ type AttachedDocument = {
   size: number;
 };
 
-type DropdownKey = "workflow" | "city" | "category" | null;
+type DropdownKey = "city" | "category" | null;
 
 type FloatingOption = {
   value: string;
@@ -98,6 +118,27 @@ const lawyerAccentClasses = [
 function formatFileSize(size: number) {
   if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function detectsFilingIntent(message: string) {
+  const lower = message.toLowerCase();
+  const filingWords = ["file", "filing", "submit", "prepare", "draft", "complaint", "return", "petition", "notice reply"];
+  const proceduralWords = ["tax", "itr", "consumer", "court", "legal notice", "petition", "case", "refund", "documents"];
+
+  return filingWords.some((word) => lower.includes(word)) && proceduralWords.some((word) => lower.includes(word));
+}
+
+function workflowIntro(workflow: Workflow) {
+  return `Great. I will prepare a ${workflow.name.toLowerCase()} packet for ${workflow.forum}. ${workflow.estimatedTime ? `This usually takes ${workflow.estimatedTime}. ` : ""}First, I will ask only the missing details.`;
+}
+
+function buildPacketReviewText(agentTurn: AgentTurn) {
+  return [
+    `I prepared a draft ${agentTurn.workflow.name.toLowerCase()} document.`,
+    `Forum: ${agentTurn.workflow.forum}`,
+    `Government route: ${agentTurn.integration.name}`,
+    "Review the document preview below. If it looks correct, open the final confirmation step before I queue anything for submission.",
+  ].join("\n");
 }
 
 function FloatingSelect({
@@ -249,14 +290,12 @@ export default function AssistantPage() {
   const [agentTurn, setAgentTurn] = useState<AgentTurn | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [consent, setConsent] = useState(false);
-  const [status, setStatus] = useState("Ready");
-  const [submission, setSubmission] = useState<string | null>(null);
   const [attachedDocuments, setAttachedDocuments] = useState<AttachedDocument[]>([]);
   const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderLength, setPlaceholderLength] = useState(0);
   const [isPlaceholderDeleting, setIsPlaceholderDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const [category, setCategory] = useState("All");
   const [city, setCity] = useState("All cities");
@@ -276,27 +315,6 @@ export default function AssistantPage() {
     [selectedLawyerId],
   );
 
-  const activeWorkflow = useMemo(
-    () => agentTurn?.workflow || workflows.find((workflow) => workflow.id === selectedWorkflowId),
-    [agentTurn?.workflow, selectedWorkflowId, workflows],
-  );
-  const integrationOptions = useMemo(
-    () => activeWorkflow?.integrations || [],
-    [activeWorkflow?.integrations],
-  );
-  const activeIntegration = useMemo(
-    () => agentTurn?.integration || integrationOptions.find((integration) => integration.id === selectedIntegrationId),
-    [agentTurn?.integration, integrationOptions, selectedIntegrationId],
-  );
-  const workflowOptions = useMemo(
-    () =>
-      workflows.map((workflow) => ({
-        value: workflow.id,
-        label: workflow.name,
-        helper: workflow.forum,
-      })),
-    [workflows],
-  );
   const cityOptions = useMemo(
     () => cities.map((item) => ({ value: item, label: item, helper: item === "All cities" ? "Across India" : "Local advocates" })),
     [],
@@ -315,7 +333,10 @@ export default function AssistantPage() {
         setWorkflows(data.workflows);
         setSelectedIntegrationId(data.workflows[0].integrations?.[0]?.id || "income_tax_eri");
       } catch {
-        setStatus("Workflow registry unavailable");
+        setMessages((current) => [
+          ...current,
+          { role: "assistant", text: "I could not load filing workflows right now, but I can still answer Indian legal procedure questions." },
+        ]);
       }
     }
 
@@ -390,18 +411,75 @@ export default function AssistantPage() {
     setInput("");
     setAttachedDocuments([]);
     setIsSending(true);
-    setSubmission(null);
-    setStatus("Thinking");
 
+    if (!agentTurn && detectsFilingIntent(userText)) {
+      const actions = workflows.map((workflow) => ({
+        label: workflow.name,
+        type: "choose_workflow" as const,
+        workflowId: workflow.id,
+      }));
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          text: "I can help turn that into a filing conversation. What type of filing do you want to prepare?",
+          actions,
+        },
+      ]);
+      setIsSending(false);
+      return;
+    }
+
+    if (!agentTurn) {
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: userText,
+            conversation: messages
+              .filter((message) => message.role !== "system")
+              .map((message) => ({
+                role: message.role === "user" ? "user" : "assistant",
+                text: message.text,
+              })),
+          }),
+        });
+        const data = (await response.json()) as { reply?: string; disclaimer?: string; error?: string };
+        if (!response.ok || !data.reply) throw new Error(data.error || "Chat failed.");
+        const reply = data.reply;
+        setMessages((current) => [...current, { role: "assistant", text: reply }]);
+      } catch {
+        setMessages((current) => [
+          ...current,
+          {
+            role: "assistant",
+            text: "I could not reach the AI answer service just now. Ask again, or tell me if you want to prepare a filing packet.",
+          },
+        ]);
+      } finally {
+        setIsSending(false);
+      }
+      return;
+    }
+
+    await continueFiling(userText, selectedWorkflowId, collected);
+  }
+
+  async function continueFiling(
+    userText: string,
+    workflowId: Workflow["id"],
+    currentCollected: Record<string, string>,
+  ) {
     try {
       const response = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userText,
-          workflowId: selectedWorkflowId,
+          workflowId,
           integrationId: selectedIntegrationId,
-          collected,
+          collected: currentCollected,
         }),
       });
       const data = (await response.json()) as AgentTurn & { error?: string };
@@ -411,38 +489,44 @@ export default function AssistantPage() {
       setSelectedIntegrationId(data.integration.id);
       setCollected(data.collected);
       setAgentTurn(data);
-      setConsent(false);
       setMessages((current) => [
         ...current,
         {
           role: "assistant",
           text: data.readyToReview
-            ? "Your packet is ready. Review the details on the right and confirm consent only if everything looks correct."
+            ? buildPacketReviewText(data)
             : data.nextQuestion,
+          packet: data.draftPacket || undefined,
+          actions: data.readyToReview ? [{ label: "Open final confirmation", type: "final_confirm" }] : undefined,
         },
       ]);
-      setStatus(data.readyToReview ? "Review ready" : "Collecting");
     } catch {
       setMessages((current) => [...current, { role: "assistant", text: "I could not process that. Try again with the missing detail." }]);
-      setStatus("Needs attention");
     } finally {
       setIsSending(false);
     }
   }
 
-  function switchWorkflow(workflowId: Workflow["id"]) {
+  async function chooseWorkflow(workflowId: Workflow["id"]) {
+    if (isSending) return;
     const workflow = workflows.find((item) => item.id === workflowId);
+    if (!workflow) return;
+
     setSelectedWorkflowId(workflowId);
     setSelectedIntegrationId(workflow?.integrations?.[0]?.id || "income_tax_eri");
     setCollected({});
     setAgentTurn(null);
-    setConsent(false);
-    setSubmission(null);
-    setMessages([]);
+    setIsSending(true);
+    setMessages((current) => [
+      ...current,
+      { role: "user", text: workflow.name },
+      { role: "assistant", text: workflowIntro(workflow) },
+    ]);
+    await continueFiling(`Start ${workflow.name}`, workflowId, {});
   }
 
   async function submitPacket() {
-    if (!agentTurn?.readyToReview || !consent || isSubmitting) return;
+    if (!agentTurn?.readyToReview || isSubmitting) return;
     setIsSubmitting(true);
 
     try {
@@ -451,23 +535,28 @@ export default function AssistantPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workflowId: agentTurn.workflow.id,
-          integrationId: activeIntegration?.id || agentTurn.integration.id,
+          integrationId: agentTurn.integration.id,
           collected,
-          consent,
+          consent: true,
         }),
       });
       const data = (await response.json()) as { status?: string; forum?: string; nextStep?: string; error?: string };
       if (!response.ok || !data.status || !data.forum || !data.nextStep) {
         throw new Error(data.error || "Submission failed.");
       }
-      setSubmission(data.nextStep);
+      setConfirmOpen(false);
       setMessages((current) => [
         ...current,
-        { role: "system", text: `Queued for ${data.forum}. Live filing still needs credentials, signature, payment, and review.` },
+        {
+          role: "system",
+          text: `Submission handoff queued for ${data.forum}.\n\n${data.nextStep}\n\nLive filing still requires official credentials, identity/signature verification, payment where applicable, and human review where the government route requires it.`,
+        },
       ]);
-      setStatus("Queued");
     } catch {
-      setStatus("Submission blocked");
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", text: "Submission could not be queued. Please review the packet and try the final confirmation again." },
+      ]);
     } finally {
       setIsSubmitting(false);
     }
@@ -569,7 +658,17 @@ export default function AssistantPage() {
   const noChatStarted = messages.length === 0;
   const typedPlaceholder = composerPlaceholders[placeholderIndex].slice(0, placeholderLength);
   const composerPlaceholder = `${typedPlaceholder}${typedPlaceholder ? "|" : ""}`;
-  const packetCompletion = agentTurn?.completion || 0;
+
+  function runChatAction(action: ChatAction) {
+    if (action.type === "choose_workflow" && action.workflowId) {
+      void chooseWorkflow(action.workflowId);
+      return;
+    }
+
+    if (action.type === "final_confirm") {
+      setConfirmOpen(true);
+    }
+  }
 
   return (
     <AppShell headerAction={headerToggle}>
@@ -579,35 +678,9 @@ export default function AssistantPage() {
         }`}
       >
         {mode === "agent" ? (
-          <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
-            <div className="flex min-h-0 flex-col overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/75">
-              <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
-                <div className="mx-auto flex max-w-3xl items-center justify-end">
-                  <h1 className="sr-only">AI Law Agent</h1>
-                  <span
-                    aria-label={`${status}, ${packetCompletion}% complete`}
-                    className="grid h-8 w-8 place-items-center rounded-full"
-                    style={{
-                      background: `conic-gradient(#020617 ${packetCompletion * 3.6}deg, #e5e7eb 0deg)`,
-                    }}
-                  >
-                    <span aria-hidden="true" className="h-5 w-5 rounded-full bg-white" />
-                  </span>
-                </div>
-
-                <div className="mx-auto mt-4 max-w-3xl">
-                  <FloatingSelect
-                    label="Filing type"
-                    value={selectedWorkflowId}
-                    options={workflowOptions}
-                    isOpen={openDropdown === "workflow"}
-                    onOpen={() => setOpenDropdown("workflow")}
-                    onClose={() => setOpenDropdown(null)}
-                    onSelect={(nextValue) => switchWorkflow(nextValue as Workflow["id"])}
-                  />
-                </div>
-              </div>
-
+          <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 overflow-hidden">
+            <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/75">
+              <h1 className="sr-only">AI Law Agent</h1>
               <div className="relative min-h-0 flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
                 {noChatStarted ? (
                   <div className="pointer-events-none absolute inset-0 grid place-items-center px-6">
@@ -644,9 +717,54 @@ export default function AssistantPage() {
                         }`}
                       >
                         {message.text}
+                        {message.packet ? (
+                          <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-900">
+                            <div className="border-b border-slate-100 px-3 py-2">
+                              <p className="text-sm font-semibold">{message.packet.title}</p>
+                              <p className="mt-0.5 text-xs text-slate-500">{message.packet.forum}</p>
+                            </div>
+                            <div className="divide-y divide-slate-100">
+                              {message.packet.fields.map((field) => (
+                                <div key={field.id} className="grid gap-1 px-3 py-2 sm:grid-cols-[150px_minmax(0,1fr)]">
+                                  <p className="text-xs font-semibold text-slate-500">{field.label}</p>
+                                  <p className="text-sm text-slate-900">
+                                    {field.sensitive ? "Masked sensitive value" : field.value}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600">
+                              {message.packet.declaration}
+                            </div>
+                          </div>
+                        ) : null}
+                        {message.actions?.length ? (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {message.actions.map((action) => (
+                              <button
+                                key={`${action.type}-${action.workflowId || action.label}`}
+                                type="button"
+                                onClick={() => runChatAction(action)}
+                                className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
+                              >
+                                {action.label}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   ))}
+                  {isSending ? (
+                    <div className="group flex items-start gap-3 justify-start">
+                      <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-950 text-[11px] font-semibold text-white">
+                        न
+                      </div>
+                      <div className="rounded-xl bg-[#f4f4f4] px-4 py-3 text-[15px] leading-6 text-slate-500">
+                        Thinking...
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
@@ -725,98 +843,14 @@ export default function AssistantPage() {
                       disabled={!canSend || isSending}
                       className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-slate-950 text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
-                      {isSending ? (
-                        <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                      ) : (
-                        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 19V5M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
+                      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 19V5M5 12l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
                     </button>
                   </div>
                 </form>
               </div>
             </div>
-
-            <aside className="hidden min-h-0 space-y-3 overflow-y-auto lg:block">
-              <div className="rounded-lg border border-slate-200/80 bg-white p-4">
-                <h2 className="text-sm font-semibold text-slate-950">Review packet</h2>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
-                  The assistant collects details and prepares a reviewable packet before any filing handoff.
-                </p>
-                <div className="mt-4 space-y-2">
-                  {agentTurn?.workflow.fields.map((field) => {
-                    const isComplete = Boolean(collected[field.id]);
-                    const isActiveQuestion = isSending && agentTurn.missingFields[0]?.id === field.id;
-
-                    return (
-                      <div key={field.id} className="rounded-xl border border-transparent bg-slate-50 p-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-semibold text-slate-500">{field.label}</p>
-                          <span
-                            aria-label={isActiveQuestion ? "Loading question" : isComplete ? "Completed" : "Missing"}
-                            className={`grid h-5 w-5 shrink-0 place-items-center rounded-full ${
-                              isActiveQuestion
-                                ? "bg-slate-100 text-slate-500"
-                                : isComplete
-                                  ? "bg-emerald-100 text-emerald-700"
-                                  : "bg-white text-slate-400 ring-1 ring-slate-200"
-                            }`}
-                          >
-                            {isActiveQuestion ? (
-                              <span className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" />
-                            ) : isComplete ? (
-                              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
-                                <path d="m5 12 4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            ) : (
-                              <span aria-hidden="true" className="text-xs font-semibold">?</span>
-                            )}
-                          </span>
-                        </div>
-                        <p className="mt-1 line-clamp-2 text-sm text-slate-800">
-                          {collected[field.id]
-                            ? field.sensitive
-                              ? "Masked sensitive value"
-                              : collected[field.id]
-                            : field.question}
-                        </p>
-                      </div>
-                    );
-                  }) || <p className="rounded-xl bg-slate-50 p-3 text-sm text-slate-500">No packet yet.</p>}
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-slate-200/80 bg-white p-4">
-                <h2 className="text-sm font-semibold text-slate-950">Submit</h2>
-                {agentTurn?.draftPacket ? (
-                  <div className="mt-3 space-y-3">
-                    <label className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-700">
-                      <input
-                        type="checkbox"
-                        checked={consent}
-                        onChange={(event) => setConsent(event.target.checked)}
-                        autoComplete="off"
-                        className="mt-1 h-4 w-4 accent-slate-950"
-                      />
-                      I reviewed this packet and authorize NyayLink to queue the selected route.
-                    </label>
-                    <button
-                      onClick={() => void submitPacket()}
-                      disabled={!consent || isSubmitting}
-                      className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-                    >
-                      {isSubmitting ? "Queueing..." : "Queue filing"}
-                    </button>
-                  </div>
-                ) : (
-                  <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-500">
-                    The chat will unlock submission after all required details are captured.
-                  </p>
-                )}
-                {submission ? <p className="mt-3 text-xs leading-5 text-slate-500">{submission}</p> : null}
-              </div>
-            </aside>
           </div>
         ) : (
           <div className="mx-auto w-full max-w-6xl rounded-lg bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
@@ -956,6 +990,71 @@ export default function AssistantPage() {
             </div>
           </div>
         )}
+        {confirmOpen && agentTurn?.draftPacket ? (
+          <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/20 px-4 backdrop-blur-md">
+            <div className="w-full max-w-2xl rounded-lg border border-slate-200 bg-white p-5 ring-1 ring-slate-950/5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Final confirmation</p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-normal text-slate-950">
+                    Review before government handoff
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    NyayLink will only queue this draft after your approval. Live submission still requires the official account, identity, signature, payment, and advocate review where applicable.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close final confirmation"
+                  onClick={() => setConfirmOpen(false)}
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                >
+                  x
+                </button>
+              </div>
+
+              <div className="mt-5 rounded-lg border border-slate-200">
+                <div className="border-b border-slate-100 px-4 py-3">
+                  <p className="text-sm font-semibold text-slate-950">{agentTurn.draftPacket.title}</p>
+                  <p className="mt-1 text-xs text-slate-500">{agentTurn.integration.name}</p>
+                </div>
+                <div className="max-h-72 divide-y divide-slate-100 overflow-y-auto">
+                  {agentTurn.draftPacket.fields.map((field) => (
+                    <div key={field.id} className="grid gap-1 px-4 py-3 sm:grid-cols-[170px_minmax(0,1fr)]">
+                      <p className="text-xs font-semibold text-slate-500">{field.label}</p>
+                      <p className="text-sm text-slate-900">{field.sensitive ? "Masked sensitive value" : field.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                <p className="font-semibold text-slate-950">Submission review</p>
+                <p className="mt-1">
+                  This payload is prepared for {agentTurn.workflow.forum}. It will be queued through the {agentTurn.integration.name} route and should be checked against official portal/API requirements before live filing.
+                </p>
+              </div>
+
+              <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setConfirmOpen(false)}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50"
+                >
+                  Keep editing
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void submitPacket()}
+                  disabled={isSubmitting}
+                  className="rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  {isSubmitting ? "Sending..." : "Approve and send"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
         {selectedLawyer ? (
           <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/20 px-4 backdrop-blur-md">
             <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-4 ring-1 ring-slate-950/5 sm:p-5">

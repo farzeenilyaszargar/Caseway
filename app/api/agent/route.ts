@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  createOpenAILegalAutomationTurn,
   createLegalAutomationTurn,
   getLegalAutomationWorkflows,
   type LegalAutomationRequest,
@@ -11,7 +12,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => ({}))) as LegalAutomationRequest;
-  const result = createLegalAutomationTurn(body);
+  const result = await createOpenAILegalAutomationTurn(body).catch(() => createLegalAutomationTurn(body));
 
   return NextResponse.json(result.data);
 }

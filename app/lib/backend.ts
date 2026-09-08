@@ -679,6 +679,83 @@ export function createLegalAutomationTurn(body: LegalAutomationRequest) {
   };
 }
 
+export async function createOpenAILegalAutomationTurn(body: LegalAutomationRequest) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const message = body.message?.trim() || "";
+  if (!apiKey || !message) {
+    return createLegalAutomationTurn(body);
+  }
+
+  const workflow = resolveAutomationWorkflow(body.workflowId, message);
+  if (isWorkflowIntentOnly(message, workflow)) {
+    return createLegalAutomationTurn(body);
+  }
+
+  const current = body.collected || {};
+  const missingFields = workflow.fields.filter((field) => field.required && !current[field.id]?.trim());
+  if (missingFields.length === 0) {
+    return createLegalAutomationTurn(body);
+  }
+
+  const model = process.env.OPENAI_MODEL || "gpt-5.6";
+  const extractionPrompt = [
+    "Extract filing intake values from the user's message for this Indian legal workflow.",
+    "Return only a JSON object. Use field ids as keys. Include only values that are explicitly stated or clearly implied. Do not invent missing information.",
+    `Workflow: ${workflow.name}`,
+    `Forum: ${workflow.forum}`,
+    `Fields: ${workflow.fields.map((field) => `${field.id} (${field.label}): ${field.question}`).join("; ")}`,
+    `User message: ${message}`,
+  ].join("\n");
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      instructions:
+        "You are NyayLink's filing intake extractor for Indian legal and government workflows. Extract user-provided facts into the requested schema with high precision. Return JSON only.",
+      input: extractionPrompt,
+      max_output_tokens: 500,
+    }),
+  });
+
+  const data = (await response.json()) as {
+    output_text?: string;
+    error?: { message?: string };
+    output?: Array<{
+      content?: Array<{ text?: string; type?: string }>;
+    }>;
+  };
+  if (!response.ok) {
+    throw new Error(data.error?.message || "OpenAI extraction failed.");
+  }
+
+  const outputText =
+    data.output_text ||
+    data.output
+      ?.flatMap((item) => item.content || [])
+      .map((content) => content.text)
+      .filter(Boolean)
+      .join("\n") ||
+    "{}";
+  const extracted = parseExtractedFields(outputText, workflow);
+  const merged = { ...current, ...extracted };
+
+  if (Object.keys(extracted).length === 0) {
+    return createLegalAutomationTurn(body);
+  }
+
+  return createLegalAutomationTurn({
+    ...body,
+    message: "",
+    workflowId: workflow.id,
+    collected: merged,
+  });
+}
+
 function withoutFields(workflow: LegalAutomationWorkflow) {
   return {
     id: workflow.id,
@@ -785,6 +862,23 @@ function normalizeCollectedFields(
     collected[missingField.id] = trimmed;
   }
   return collected;
+}
+
+function parseExtractedFields(outputText: string, workflow: LegalAutomationWorkflow) {
+  const jsonMatch = outputText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return {};
+
+  try {
+    const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+    const fieldIds = new Set(workflow.fields.map((field) => field.id));
+    return Object.fromEntries(
+      Object.entries(parsed)
+        .filter(([key, value]) => fieldIds.has(key) && typeof value === "string" && value.trim().length > 0)
+        .map(([key, value]) => [key, String(value).trim()]),
+    );
+  } catch {
+    return {};
+  }
 }
 
 function isWorkflowIntentOnly(message: string, workflow: LegalAutomationWorkflow) {
@@ -975,7 +1069,15 @@ function inferMatterType(message: string) {
   if (lower.includes("property") || lower.includes("agreement") || lower.includes("sale deed")) return "Property";
   if (lower.includes("landlord") || lower.includes("rent") || lower.includes("tenant")) return "Property";
   if (lower.includes("divorce") || lower.includes("custody") || lower.includes("maintenance")) return "Family";
-  if (lower.includes("fir") || lower.includes("bail") || lower.includes("police")) return "Criminal";
+  if (
+    lower.includes("fir") ||
+    lower.includes("bail") ||
+    lower.includes("police") ||
+    lower.includes("ipc") ||
+    lower.includes("bns") ||
+    lower.includes("indian penal code") ||
+    lower.includes("bharatiya nyaya sanhita")
+  ) return "Criminal";
   if (lower.includes("salary") || lower.includes("termination") || lower.includes("employer")) return "Labour";
   return "General";
 }
@@ -990,6 +1092,9 @@ function makeNextSteps(matterType: string) {
   }
   if (matterType === "Property") {
     return ["Collect agreement, title records, tax receipts, and notices.", "Check registration and possession clauses.", ...common];
+  }
+  if (matterType === "Criminal") {
+    return ["Identify FIR/complaint number, sections, police station, and court.", "Collect timeline, witnesses, notices, orders, and ID proof.", ...common];
   }
   return ["Write a short fact summary.", "Identify parties, dates, documents, and requested relief.", ...common];
 }
