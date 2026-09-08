@@ -230,12 +230,7 @@ export default function AssistantPage() {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<Workflow["id"]>("income_tax_return");
   const [selectedIntegrationId, setSelectedIntegrationId] = useState<Integration["id"]>("income_tax_eri");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "assistant",
-      text: "Tell me what you want to file. I will ask the missing questions, prepare the packet, and wait for your consent before any submission handoff.",
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [collected, setCollected] = useState<Record<string, string>>({});
   const [agentTurn, setAgentTurn] = useState<AgentTurn | null>(null);
@@ -401,14 +396,7 @@ export default function AssistantPage() {
     setAgentTurn(null);
     setConsent(false);
     setSubmission(null);
-    setMessages([
-      {
-        role: "assistant",
-        text: workflow
-          ? `Starting ${workflow.name}. Tell me what you already know, or type start and I will ask the first question.`
-          : "Tell me what you want to file.",
-      },
-    ]);
+    setMessages([]);
   }
 
   async function submitPacket() {
@@ -536,6 +524,7 @@ export default function AssistantPage() {
     </div>
   );
   const canSend = input.trim().length > 0 || attachedDocuments.length > 0;
+  const noChatStarted = messages.length === 0;
 
   return (
     <AppShell headerAction={headerToggle}>
@@ -550,10 +539,8 @@ export default function AssistantPage() {
               <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
                 <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <h1 className="text-lg font-semibold tracking-normal text-slate-950 sm:text-xl">
-                      How can I help you file today?
-                    </h1>
-                    <p className="mt-1 truncate text-sm text-slate-500">
+                    <h1 className="sr-only">AI Law Agent</h1>
+                    <p className="truncate text-sm text-slate-500">
                       {activeWorkflow?.name || "Choose a filing type"}
                     </p>
                   </div>
@@ -575,8 +562,22 @@ export default function AssistantPage() {
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
-                <div className="mx-auto max-w-3xl space-y-6">
+              <div className="relative min-h-0 flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
+                {noChatStarted ? (
+                  <div className="pointer-events-none absolute inset-0 grid place-items-center px-6">
+                    <div className="flex flex-col items-center">
+                      <span
+                        aria-hidden="true"
+                        className="h-12 w-28 bg-contain bg-center bg-no-repeat opacity-[0.12]"
+                        style={{ backgroundImage: "url('/nyaylink-logo.png')" }}
+                      />
+                      <p className="mt-5 text-center text-3xl font-semibold tracking-normal text-slate-300 sm:text-4xl">
+                        How Can I Help You Today?
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+                <div className="relative z-10 mx-auto max-w-3xl space-y-6">
                   {messages.map((message, index) => (
                     <div
                       key={`${message.role}-${index}`}
