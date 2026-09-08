@@ -1,6 +1,6 @@
-# NyayLink
+# Caseway
 
-NyayLink is a chat-first AI filing copilot for Indian legal and compliance
+Caseway is a chat-first AI filing copilot for Indian legal and compliance
 workflows. The primary experience is a guided filing conversation that collects
 missing information, chooses a realistic government integration route, prepares
 a filing packet, and waits for consent before submission handoff.

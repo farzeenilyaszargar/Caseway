@@ -680,7 +680,7 @@ export default function AssistantPage() {
         {mode === "agent" ? (
           <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 overflow-hidden">
             <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/75">
-              <h1 className="sr-only">AI Law Agent</h1>
+              <h1 className="sr-only">Law AI</h1>
               <div className="relative min-h-0 flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
                 {noChatStarted ? (
                   <div className="pointer-events-none absolute inset-0 grid place-items-center px-6">
@@ -782,7 +782,7 @@ export default function AssistantPage() {
                 </div>
                 <form onSubmit={onSubmit} className="chat-composer mx-auto max-w-3xl rounded-full border border-slate-200 bg-white p-2">
                   <label className="sr-only" htmlFor="agent-answer">
-                    Message NyayLink filing agent
+                    Message Caseway filing agent
                   </label>
                   {attachedDocuments.length > 0 ? (
                     <div className="mb-2 flex flex-wrap gap-2 px-1">
@@ -1000,7 +1000,7 @@ export default function AssistantPage() {
                     Review before government handoff
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    NyayLink will only queue this draft after your approval. Live submission still requires the official account, identity, signature, payment, and advocate review where applicable.
+                    Caseway will only queue this draft after your approval. Live submission still requires the official account, identity, signature, payment, and advocate review where applicable.
                   </p>
                 </div>
                 <button

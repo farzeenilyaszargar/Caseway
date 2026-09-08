@@ -54,7 +54,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
     <main className="app-canvas flex h-screen flex-col overflow-hidden text-slate-950">
       <header className="z-20 shrink-0 bg-white/88 backdrop-blur-xl">
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 sm:grid-cols-[1fr_auto_1fr] sm:px-6 lg:px-8">
-          <Link className="flex items-center justify-self-start" href="/" aria-label="NyayLink home">
+          <Link className="flex items-center justify-self-start" href="/" aria-label="Caseway home">
             <span
               aria-hidden="true"
               className="h-6 w-[52px] shrink-0 bg-contain bg-left bg-no-repeat"
@@ -84,7 +84,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
               <span
                 aria-hidden="true"
                 className="h-full w-full bg-cover bg-center"
-                style={{ backgroundImage: "url('https://api.dicebear.com/9.x/notionists/svg?seed=NyayLink%20User&backgroundColor=f1f5f9')" }}
+                style={{ backgroundImage: "url('https://api.dicebear.com/9.x/notionists/svg?seed=Caseway%20User&backgroundColor=f1f5f9')" }}
               />
             </button>
             {profileOpen ? (
@@ -96,7 +96,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
                   <span
                     aria-hidden="true"
                     className="h-10 w-10 rounded-full border border-slate-200 bg-cover bg-center"
-                    style={{ backgroundImage: "url('https://api.dicebear.com/9.x/notionists/svg?seed=NyayLink%20User&backgroundColor=f1f5f9')" }}
+                    style={{ backgroundImage: "url('https://api.dicebear.com/9.x/notionists/svg?seed=Caseway%20User&backgroundColor=f1f5f9')" }}
                   />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-slate-950">Farzeen Ilyas</p>
@@ -141,7 +141,7 @@ export function LegalDisclaimer() {
     <aside className="premium-card rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-700">
       <p className="font-semibold">Important legal notice</p>
       <p className="mt-1">
-        NyayLink provides general legal information and workflow assistance. For filings,
+        Caseway provides general legal information and workflow assistance. For filings,
         deadlines, notices, and court strategy, consult an enrolled advocate.
       </p>
     </aside>

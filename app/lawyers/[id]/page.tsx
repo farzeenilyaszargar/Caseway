@@ -6,7 +6,7 @@ const caseDocuments = [
   {
     name: "Filing packet draft.pdf",
     status: "Ready for review",
-    detail: "Generated from AI Law Agent intake",
+    detail: "Generated from Law AI intake",
   },
   {
     name: "Identity and address proof.zip",

@@ -20,18 +20,18 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: 'NyayLink | AI Law Agent',
+  title: 'Caseway | Law AI',
   description:
-    'A clean chat-first AI law agent for Indian filing workflows and advocate review.',
+    'A clean chat-first Law AI for Indian filing workflows and advocate review.',
   openGraph: {
-    title: 'NyayLink | AI Law Agent',
+    title: 'Caseway | Law AI',
     description:
       'Chat-first Indian legal filing workflows with advocate matching.',
     images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NyayLink | AI Law Agent',
+    title: 'Caseway | Law AI',
     description:
       'Chat-first Indian legal filing workflows with advocate matching.',
     images: ['/og.png'],

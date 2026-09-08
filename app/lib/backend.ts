@@ -540,7 +540,7 @@ export async function createOpenAIChatResponse(body: ChatRequest) {
     body: JSON.stringify({
       model,
       instructions:
-        "You are NyayLink Legal Desk, a careful Indian legal information assistant. Provide practical, concise guidance for Indian legal procedures. Do not claim to be a lawyer, do not draft final filings as legal advice, and always recommend review by an enrolled advocate for filings, notices, deadlines, criminal matters, or court strategy. Use plain English with occasional Hindi labels only when natural.",
+        "You are Caseway Legal Desk, a careful Indian legal information assistant. Provide practical, concise guidance for Indian legal procedures. Do not claim to be a lawyer, do not draft final filings as legal advice, and always recommend review by an enrolled advocate for filings, notices, deadlines, criminal matters, or court strategy. Use plain English with occasional Hindi labels only when natural.",
       input: [
         recentConversation ? `Recent conversation:\n${recentConversation}` : "",
         `Current user message:\n${message}`,
@@ -716,7 +716,7 @@ export async function createOpenAILegalAutomationTurn(body: LegalAutomationReque
     body: JSON.stringify({
       model,
       instructions:
-        "You are NyayLink's filing intake extractor for Indian legal and government workflows. Extract user-provided facts into the requested schema with high precision. Return JSON only.",
+        "You are Caseway's filing intake extractor for Indian legal and government workflows. Extract user-provided facts into the requested schema with high precision. Return JSON only.",
       input: extractionPrompt,
       max_output_tokens: 500,
     }),
@@ -1056,7 +1056,7 @@ export function createPaymentOrder(body: PaymentRequest) {
       currency: "INR",
       method: body.method || "upi",
       status: "created",
-      upiIntent: `upi://pay?pa=nyaylink@upi&pn=NyayLink&am=${amount}&cu=INR`,
+      upiIntent: `upi://pay?pa=caseway@upi&pn=Caseway&am=${amount}&cu=INR`,
       createdAt: new Date().toISOString(),
     },
   };
