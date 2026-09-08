@@ -57,7 +57,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
           <Link className="flex items-center justify-self-start" href="/" aria-label="NyayLink home">
             <span
               aria-hidden="true"
-              className="h-8 w-[70px] shrink-0 bg-contain bg-left bg-no-repeat"
+              className="h-6 w-[52px] shrink-0 bg-contain bg-left bg-no-repeat"
               style={{ backgroundImage: "url('/nyaylink-logo.png')" }}
             />
           </Link>
