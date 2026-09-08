@@ -92,7 +92,7 @@ type SpeechWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 };
 
-type DropdownKey = "workflow" | "integration" | "city" | "category" | null;
+type DropdownKey = "workflow" | "city" | "category" | null;
 
 type FloatingOption = {
   value: string;
@@ -124,6 +124,7 @@ function FloatingSelect({
   label,
   value,
   options,
+  searchable = false,
   isOpen,
   onOpen,
   onClose,
@@ -132,6 +133,7 @@ function FloatingSelect({
   label: string;
   value: string;
   options: FloatingOption[];
+  searchable?: boolean;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -139,10 +141,12 @@ function FloatingSelect({
 }) {
   const [query, setQuery] = useState("");
   const selected = options.find((option) => option.value === value) || options[0];
-  const visibleOptions = options.filter((option) => {
-    const haystack = `${option.label} ${option.helper || ""}`.toLowerCase();
-    return haystack.includes(query.trim().toLowerCase());
-  });
+  const visibleOptions = searchable
+    ? options.filter((option) => {
+        const haystack = `${option.label} ${option.helper || ""}`.toLowerCase();
+        return haystack.includes(query.trim().toLowerCase());
+      })
+    : options;
 
   function closeMenu() {
     setQuery("");
@@ -184,21 +188,23 @@ function FloatingSelect({
           role="listbox"
           className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 rounded-xl border border-slate-200 bg-white p-1.5 ring-1 ring-slate-950/5"
         >
-          <div className="sticky top-0 z-10 bg-white p-1">
-            <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500 focus-within:border-slate-950 focus-within:bg-white">
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="m21 21-4.3-4.3" strokeLinecap="round" />
-                <path d="M10.8 18a7.2 7.2 0 1 0 0-14.4 7.2 7.2 0 0 0 0 14.4Z" />
-              </svg>
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={`Search ${label.toLowerCase()}...`}
-                className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-                autoFocus
-              />
-            </label>
-          </div>
+          {searchable ? (
+            <div className="sticky top-0 z-10 bg-white p-1">
+              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-500 focus-within:border-slate-950 focus-within:bg-white">
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+                  <path d="M10.8 18a7.2 7.2 0 1 0 0-14.4 7.2 7.2 0 0 0 0 14.4Z" />
+                </svg>
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={`Search ${label.toLowerCase()}...`}
+                  className="min-w-0 flex-1 bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                  autoFocus
+                />
+              </label>
+            </div>
+          ) : null}
           <div className="max-h-60 overflow-y-auto pt-1">
           {visibleOptions.length > 0 ? visibleOptions.map((option) => {
             const selectedOption = option.value === value;
@@ -304,15 +310,6 @@ export default function AssistantPage() {
         helper: workflow.forum,
       })),
     [workflows],
-  );
-  const integrationSelectOptions = useMemo(
-    () =>
-      integrationOptions.map((integration) => ({
-        value: integration.id,
-        label: integration.name,
-        helper: integration.status.replaceAll("-", " "),
-      })),
-    [integrationOptions],
   );
   const cityOptions = useMemo(
     () => cities.map((item) => ({ value: item, label: item, helper: item === "All cities" ? "Across India" : "Local advocates" })),
@@ -621,7 +618,7 @@ export default function AssistantPage() {
                       How can I help you file today?
                     </h1>
                     <p className="mt-1 truncate text-sm text-slate-500">
-                      {activeWorkflow?.name || "Choose a filing type"} via {activeIntegration?.name || "selected route"}
+                      {activeWorkflow?.name || "Choose a filing type"}
                     </p>
                   </div>
                   <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
@@ -629,7 +626,7 @@ export default function AssistantPage() {
                   </span>
                 </div>
 
-                <div className="mx-auto mt-4 grid max-w-3xl gap-2 md:grid-cols-2">
+                <div className="mx-auto mt-4 max-w-3xl">
                   <FloatingSelect
                     label="Filing type"
                     value={selectedWorkflowId}
@@ -638,20 +635,6 @@ export default function AssistantPage() {
                     onOpen={() => setOpenDropdown("workflow")}
                     onClose={() => setOpenDropdown(null)}
                     onSelect={(nextValue) => switchWorkflow(nextValue as Workflow["id"])}
-                  />
-                  <FloatingSelect
-                    label="Route"
-                    value={selectedIntegrationId}
-                    options={integrationSelectOptions}
-                    isOpen={openDropdown === "integration"}
-                    onOpen={() => setOpenDropdown("integration")}
-                    onClose={() => setOpenDropdown(null)}
-                    onSelect={(nextValue) => {
-                      setSelectedIntegrationId(nextValue as Integration["id"]);
-                      setAgentTurn(null);
-                      setConsent(false);
-                      setSubmission(null);
-                    }}
                   />
                 </div>
               </div>
@@ -782,9 +765,7 @@ export default function AssistantPage() {
               <div className="rounded-2xl border border-slate-200/80 bg-white p-4">
                 <h2 className="text-sm font-semibold text-slate-950">Review packet</h2>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  {activeIntegration
-                    ? `${activeIntegration.name} · ${activeIntegration.status.replaceAll("-", " ")}`
-                    : "Start the chat to choose a route."}
+                  The assistant collects details and prepares a reviewable packet before any filing handoff.
                 </p>
                 <div className="mt-4 space-y-2">
                   {agentTurn?.workflow.fields.map((field) => (
@@ -861,6 +842,7 @@ export default function AssistantPage() {
                 label="City"
                 value={city}
                 options={cityOptions}
+                searchable
                 isOpen={openDropdown === "city"}
                 onOpen={() => setOpenDropdown("city")}
                 onClose={() => setOpenDropdown(null)}
