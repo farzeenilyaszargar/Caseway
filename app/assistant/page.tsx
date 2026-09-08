@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { AppShell } from "../components/AppShell";
 import { categories, cities, lawyers as fallbackLawyers, type Lawyer } from "../data";
 
@@ -259,6 +260,10 @@ export default function AssistantPage() {
     paymentId: string;
     status: string;
   } | null>(null);
+  const selectedLawyer = useMemo(
+    () => fallbackLawyers.find((lawyer) => lawyer.id === selectedLawyerId) || null,
+    [selectedLawyerId],
+  );
 
   const activeWorkflow = useMemo(
     () => agentTurn?.workflow || workflows.find((workflow) => workflow.id === selectedWorkflowId),
@@ -863,25 +868,98 @@ export default function AssistantPage() {
                     Speaks {lawyer.languages.join(", ")}
                   </p>
                   <button
-                    onClick={() => void requestReview(lawyer)}
+                    onClick={() => setSelectedLawyerId(lawyer.id)}
                     className={`mt-4 w-full rounded-xl px-4 py-3 text-sm font-semibold text-white ${
                       selectedLawyerId === lawyer.id ? "bg-zinc-700" : "bg-slate-950 hover:bg-slate-800"
                     }`}
                   >
-                    {selectedLawyerId === lawyer.id ? "Review requested" : "Request review"}
+                    {selectedLawyerId === lawyer.id ? "Profile open" : "View lawyer"}
                   </button>
-                  {selectedLawyerId === lawyer.id && reviewRequest ? (
-                    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs leading-5 text-slate-700">
-                      <p className="font-semibold">{reviewRequest.lawyerName} is selected.</p>
-                      <p>Consultation: {reviewRequest.consultationId}</p>
-                      <p>Payment order: {reviewRequest.status} · {reviewRequest.paymentId}</p>
-                    </div>
-                  ) : null}
                 </article>
               ))}
             </div>
           </div>
         )}
+        {selectedLawyer ? (
+          <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/20 px-4 backdrop-blur-md">
+            <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-4 ring-1 ring-slate-950/5 sm:p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-4">
+                  <div
+                    role="img"
+                    aria-label={`Demo profile portrait for ${selectedLawyer.name}`}
+                    className="h-20 w-20 shrink-0 rounded-xl border border-slate-200 bg-slate-50 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${selectedLawyer.profileImage})` }}
+                  />
+                  <div className="min-w-0">
+                    <h2 className="truncate text-xl font-semibold tracking-normal text-slate-950">{selectedLawyer.name}</h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {selectedLawyer.specialty} · {selectedLawyer.city}
+                    </p>
+                    <p className="mt-1 line-clamp-1 text-xs text-slate-400">{selectedLawyer.court}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  aria-label="Close lawyer details"
+                  onClick={() => {
+                    setSelectedLawyerId(null);
+                    setReviewRequest(null);
+                  }}
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-950"
+                >
+                  x
+                </button>
+              </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {[
+                  ["Rating", selectedLawyer.rating],
+                  ["Experience", `${selectedLawyer.experience} yrs`],
+                  ["Response", selectedLawyer.response],
+                  ["Matters", selectedLawyer.matters],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-sm font-semibold text-slate-950">{value}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">{label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+                <p>
+                  Available {selectedLawyer.availability.toLowerCase()} for a 30 minute review at Rs {selectedLawyer.price}.
+                </p>
+                <p>Languages: {selectedLawyer.languages.join(", ")}</p>
+                <p>Good fit for document review, filing readiness, and next-step planning.</p>
+              </div>
+
+              {reviewRequest ? (
+                <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-800">
+                  <p className="font-semibold">{reviewRequest.lawyerName} review request is ready.</p>
+                  <p>Consultation: {reviewRequest.consultationId}</p>
+                  <p>Payment order: {reviewRequest.status} · {reviewRequest.paymentId}</p>
+                </div>
+              ) : null}
+
+              <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => void requestReview(selectedLawyer)}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-slate-50"
+                >
+                  Check availability
+                </button>
+                <Link
+                  href={`/lawyers/${selectedLawyer.id}`}
+                  className="rounded-xl bg-slate-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-slate-800"
+                >
+                  Choose lawyer
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </section>
     </AppShell>
   );
