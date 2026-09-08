@@ -551,30 +551,32 @@ export default function AssistantPage() {
     }
   }
 
-  return (
-    <AppShell>
-      <section className="mx-auto flex h-[calc(100vh-65px)] max-w-7xl flex-col overflow-hidden px-3 py-4 sm:px-5 lg:px-8">
-        <div className="mx-auto grid w-full max-w-sm grid-cols-2 rounded-full border border-slate-200/90 bg-white/92 p-1">
-          {[
-            ["agent", "AI Law Agent"],
-            ["lawyers", "Find Lawyers"],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              onClick={() => setMode(value as Mode)}
-              className={`rounded-full px-4 py-2.5 text-sm font-medium ${
-                mode === value
-                  ? "bg-slate-950 text-white"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+  const headerToggle = (
+    <div className="grid w-full grid-cols-2 rounded-full border border-slate-200/90 bg-white/92 p-1 sm:w-[360px]">
+      {[
+        ["agent", "AI Law Agent"],
+        ["lawyers", "Find Lawyers"],
+      ].map(([value, label]) => (
+        <button
+          key={value}
+          onClick={() => setMode(value as Mode)}
+          className={`rounded-full px-4 py-2 text-sm font-medium ${
+            mode === value
+              ? "bg-slate-950 text-white"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
 
+  return (
+    <AppShell headerAction={headerToggle}>
+      <section className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden px-3 py-4 sm:px-5 lg:px-8">
         {mode === "agent" ? (
-          <div className="mt-5 grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
+          <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
             <div className="flex min-h-0 flex-col overflow-hidden rounded-[2rem] bg-white ring-1 ring-slate-200/75">
               <div className="border-b border-slate-100 px-4 py-4 sm:px-6">
                 <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
