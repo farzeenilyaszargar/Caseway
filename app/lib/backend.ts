@@ -526,6 +526,7 @@ export async function createOpenAIChatResponse(body: ChatRequest) {
   const matterType = body.matterType || inferMatterType(message);
   const nextSteps = makeNextSteps(matterType);
   const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
+  const serviceTier = process.env.OPENAI_SERVICE_TIER || "flex";
   const recentConversation = (body.conversation || [])
     .slice(-8)
     .map((item) => `${item.role === "user" ? "User" : "Legal Desk"}: ${item.text}`)
@@ -539,6 +540,7 @@ export async function createOpenAIChatResponse(body: ChatRequest) {
     },
     body: JSON.stringify({
       model,
+      service_tier: serviceTier,
       instructions:
         "You are Caseway Legal Desk, a careful Indian legal information assistant. Provide practical, concise guidance for Indian legal procedures. Do not claim to be a lawyer, do not draft final filings as legal advice, and always recommend review by an enrolled advocate for filings, notices, deadlines, criminal matters, or court strategy. Use plain English with occasional Hindi labels only when natural.",
       input: [
@@ -698,6 +700,7 @@ export async function createOpenAILegalAutomationTurn(body: LegalAutomationReque
   }
 
   const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
+  const serviceTier = process.env.OPENAI_SERVICE_TIER || "flex";
   const extractionPrompt = [
     "Extract filing intake values from the user's message for this Indian legal workflow.",
     "Return only a JSON object. Use field ids as keys. Include only values that are explicitly stated or clearly implied. Do not invent missing information.",
@@ -715,6 +718,7 @@ export async function createOpenAILegalAutomationTurn(body: LegalAutomationReque
     },
     body: JSON.stringify({
       model,
+      service_tier: serviceTier,
       instructions:
         "You are Caseway's filing intake extractor for Indian legal and government workflows. Extract user-provided facts into the requested schema with high precision. Return JSON only.",
       input: extractionPrompt,

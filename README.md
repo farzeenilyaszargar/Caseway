@@ -19,10 +19,12 @@ For live Legal Desk responses, create `.env.local`:
 ```bash
 OPENAI_API_KEY=your_openai_api_key_here
 OPENAI_MODEL=gpt-5.6-luna
+OPENAI_SERVICE_TIER=flex
 ```
 
-Caseway defaults to `gpt-5.6-luna` for lower-cost legal chat and intake extraction.
-Set `OPENAI_MODEL` to another supported model if you want higher reasoning quality.
+Caseway defaults to `gpt-5.6-luna` with `flex` processing for lower-cost legal chat
+and intake extraction. Set `OPENAI_MODEL` or `OPENAI_SERVICE_TIER` to another
+supported value if you want higher reasoning quality or lower latency.
 
 ## Product Routes
 
