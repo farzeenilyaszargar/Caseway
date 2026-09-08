@@ -606,7 +606,11 @@ export default function AssistantPage() {
 
   return (
     <AppShell headerAction={headerToggle}>
-      <section className="mx-auto flex h-full max-w-7xl flex-col overflow-hidden px-3 py-4 sm:px-5 lg:px-8">
+      <section
+        className={`mx-auto flex h-full max-w-7xl flex-col px-3 py-4 sm:px-5 lg:px-8 ${
+          mode === "agent" ? "overflow-hidden" : "overflow-y-auto"
+        }`}
+      >
         {mode === "agent" ? (
           <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
             <div className="flex min-h-0 flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200/75">
@@ -834,8 +838,8 @@ export default function AssistantPage() {
             </aside>
           </div>
         ) : (
-          <div className="mx-auto mt-5 flex min-h-0 w-full max-w-6xl flex-1 flex-col rounded-2xl bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
-            <div className="flex shrink-0 flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="mx-auto w-full max-w-6xl rounded-2xl bg-white p-4 ring-1 ring-slate-200/75 sm:p-6">
+            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-100 pb-5">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Advocate review</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">Find lawyers</h1>
@@ -853,7 +857,7 @@ export default function AssistantPage() {
               </div>
             </div>
 
-            <div className="mt-5 grid shrink-0 gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
               <FloatingSelect
                 label="City"
                 value={city}
@@ -895,7 +899,7 @@ export default function AssistantPage() {
               </label>
             </div>
 
-            <div className="mt-5 grid min-h-0 flex-1 gap-3 overflow-y-auto pr-1 md:grid-cols-2">
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
               {filteredLawyers.map((lawyer) => (
                 <article
                   key={lawyer.id}
