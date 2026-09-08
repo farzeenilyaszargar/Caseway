@@ -7,13 +7,12 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
       <header className="z-20 shrink-0 border-b border-slate-200/70 bg-white/88 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:flex-nowrap sm:px-6 lg:px-8">
           <Link className="flex items-center gap-3" href="/">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-slate-950 text-sm font-semibold text-white shadow-sm">
-              न
-            </div>
-            <div>
-              <p className="text-sm font-semibold leading-tight tracking-normal text-slate-950">NyayLink</p>
-              <p className="text-xs font-medium text-slate-500">File by chat</p>
-            </div>
+            <span
+              aria-hidden="true"
+              className="h-9 w-16 shrink-0 bg-contain bg-center bg-no-repeat"
+              style={{ backgroundImage: "url('/nyaylink-logo.png')" }}
+            />
+            <p className="text-base font-semibold leading-tight tracking-normal text-slate-950">NyayLink</p>
           </Link>
           {headerAction ? <div className="order-3 w-full sm:order-none sm:w-auto">{headerAction}</div> : null}
         </div>
