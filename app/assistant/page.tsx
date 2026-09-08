@@ -62,36 +62,6 @@ type AttachedDocument = {
   size: number;
 };
 
-type SpeechRecognitionResultItem = {
-  transcript: string;
-};
-
-type SpeechRecognitionResultListItem = {
-  0: SpeechRecognitionResultItem;
-};
-
-type SpeechRecognitionEvent = {
-  results: ArrayLike<SpeechRecognitionResultListItem>;
-};
-
-type BrowserSpeechRecognition = {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onend: (() => void) | null;
-  onerror: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-type SpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
-
-type SpeechWindow = Window & {
-  SpeechRecognition?: SpeechRecognitionConstructor;
-  webkitSpeechRecognition?: SpeechRecognitionConstructor;
-};
-
 type DropdownKey = "workflow" | "city" | "category" | null;
 
 type FloatingOption = {
@@ -255,7 +225,6 @@ function FloatingSelect({
 
 export default function AssistantPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const [mode, setMode] = useState<Mode>("agent");
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<Workflow["id"]>("income_tax_return");
@@ -275,7 +244,6 @@ export default function AssistantPage() {
   const [status, setStatus] = useState("Ready");
   const [submission, setSubmission] = useState<string | null>(null);
   const [attachedDocuments, setAttachedDocuments] = useState<AttachedDocument[]>([]);
-  const [isListening, setIsListening] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
 
   const [category, setCategory] = useState("All");
@@ -493,46 +461,6 @@ export default function AssistantPage() {
     setAttachedDocuments((current) => current.filter((file) => file.id !== id));
   }
 
-  function toggleListening() {
-    const SpeechRecognition =
-      (window as SpeechWindow).SpeechRecognition || (window as SpeechWindow).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setStatus("Mic unavailable");
-      setMessages((current) => [
-        ...current,
-        { role: "system", text: "Voice input is not available in this browser. You can still type or attach documents." },
-      ]);
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = "en-IN";
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (transcript) setInput(transcript);
-    };
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => {
-      setIsListening(false);
-      setStatus("Mic stopped");
-    };
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsListening(true);
-    setStatus("Listening");
-  }
-
   async function requestReview(lawyer: Lawyer) {
     setSelectedLawyerId(lawyer.id);
     setReviewRequest(null);
@@ -733,28 +661,6 @@ export default function AssistantPage() {
                       placeholder={agentTurn?.missingFields[0]?.placeholder || "Message NyayLink..."}
                       className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-[15px] outline-none"
                     />
-                    <button
-                      type="button"
-                      onClick={toggleListening}
-                      aria-label={isListening ? "Stop voice input" : "Start voice input"}
-                      title={isListening ? "Stop voice input" : "Start voice input"}
-                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-semibold ${
-                        isListening
-                          ? "bg-slate-950 text-white"
-                          : "text-slate-500 hover:bg-slate-100 hover:text-slate-950"
-                      }`}
-                    >
-                      {isListening ? (
-                        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                          <path d="M8 8h8v8H8z" />
-                        </svg>
-                      ) : (
-                        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-                          <path d="M12 4a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V7a3 3 0 0 0-3-3Z" />
-                          <path d="M19 11a7 7 0 0 1-14 0M12 18v3M8.5 21h7" strokeLinecap="round" />
-                        </svg>
-                      )}
-                    </button>
                     <button className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300">
                       {isSending ? "..." : "Send"}
                     </button>
