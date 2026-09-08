@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AppShell } from "../components/AppShell";
 import { categories, cities, lawyers as fallbackLawyers, type Lawyer } from "../data";
@@ -139,6 +139,85 @@ function buildPacketReviewText(agentTurn: AgentTurn) {
     `Government route: ${agentTurn.integration.name}`,
     "Review the document preview below. If it looks correct, open the final confirmation step before I queue anything for submission.",
   ].join("\n");
+}
+
+function renderInlineMarkdown(text: string, inverted = false) {
+  const parts: ReactNode[] = [];
+  const pattern = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  let cursor = 0;
+
+  for (const match of text.matchAll(pattern)) {
+    const index = match.index || 0;
+    if (index > cursor) parts.push(text.slice(cursor, index));
+
+    const token = match[0];
+    if (token.startsWith("**")) {
+      parts.push(
+        <strong key={`${token}-${index}`} className="font-semibold">
+          {token.slice(2, -2)}
+        </strong>,
+      );
+    } else {
+      parts.push(
+        <code
+          key={`${token}-${index}`}
+          className={`rounded px-1 py-0.5 text-[0.92em] ${
+            inverted ? "bg-white/15 text-white" : "bg-slate-100 text-slate-900"
+          }`}
+        >
+          {token.slice(1, -1)}
+        </code>,
+      );
+    }
+
+    cursor = index + token.length;
+  }
+
+  if (cursor < text.length) parts.push(text.slice(cursor));
+  return parts;
+}
+
+function MarkdownText({ text, inverted = false }: { text: string; inverted?: boolean }) {
+  const lines = text.split("\n");
+  return (
+    <div className="space-y-2">
+      {lines.map((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={index} className="h-1" />;
+
+        const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
+        if (heading) {
+          return (
+            <p key={index} className={`font-semibold ${inverted ? "text-white" : "text-slate-950"}`}>
+              {renderInlineMarkdown(heading[2], inverted)}
+            </p>
+          );
+        }
+
+        const bullet = trimmed.match(/^[-*]\s+(.+)$/);
+        if (bullet) {
+          return (
+            <div key={index} className="grid grid-cols-[14px_minmax(0,1fr)] gap-2">
+              <span className="pt-[0.42em] text-[10px] leading-none">•</span>
+              <p>{renderInlineMarkdown(bullet[1], inverted)}</p>
+            </div>
+          );
+        }
+
+        const numbered = trimmed.match(/^(\d+)[.)]\s+(.+)$/);
+        if (numbered) {
+          return (
+            <div key={index} className="grid grid-cols-[22px_minmax(0,1fr)] gap-2">
+              <span className="text-xs font-semibold opacity-60">{numbered[1]}.</span>
+              <p>{renderInlineMarkdown(numbered[2], inverted)}</p>
+            </div>
+          );
+        }
+
+        return <p key={index}>{renderInlineMarkdown(trimmed, inverted)}</p>;
+      })}
+    </div>
+  );
 }
 
 function FloatingSelect({
@@ -708,7 +787,7 @@ export default function AssistantPage() {
                         </div>
                       ) : null}
                       <div
-                        className={`max-w-[84%] whitespace-pre-line px-4 py-3 text-[15px] leading-6 ${
+                        className={`max-w-[84%] px-4 py-3 text-[15px] leading-6 ${
                           message.role === "user"
                             ? "rounded-xl bg-slate-950 text-white"
                             : message.role === "system"
@@ -716,7 +795,7 @@ export default function AssistantPage() {
                               : "rounded-xl border border-slate-200 bg-white text-slate-900"
                         }`}
                       >
-                        {message.text}
+                        <MarkdownText text={message.text} inverted={message.role === "user"} />
                         {message.packet ? (
                           <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-900">
                             <div className="border-b border-slate-100 px-3 py-2">
