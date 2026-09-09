@@ -116,7 +116,7 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
                           : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
                       }`}
                     >
-                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-100 text-current">
+                      <span className="grid h-5 w-5 shrink-0 place-items-center text-current">
                         {action.icon}
                       </span>
                       <span className="min-w-0">
