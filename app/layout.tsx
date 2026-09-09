@@ -37,14 +37,26 @@ export const metadata: Metadata = {
     title: 'Caseway | AI Legal Assistance',
     description:
       'Chat-first Indian legal filing workflows with advocate matching.',
-    images: ['/og.png'],
+    images: [
+      {
+        url: '/caseway-og.jpg',
+        width: 2592,
+        height: 1806,
+        alt: 'Caseway legal filing homepage with Lady Justice artwork',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Caseway | AI Legal Assistance',
     description:
       'Chat-first Indian legal filing workflows with advocate matching.',
-    images: ['/og.png'],
+    images: [
+      {
+        url: '/caseway-og.jpg',
+        alt: 'Caseway legal filing homepage with Lady Justice artwork',
+      },
+    ],
   },
 };
 
