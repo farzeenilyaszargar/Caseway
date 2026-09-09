@@ -863,20 +863,22 @@ export default function AssistantPage() {
               </div>
 
               <div className="bg-white px-3 pb-5 sm:px-6">
-                <div className="mx-auto mb-3 flex max-w-3xl gap-2 overflow-x-auto">
-                  {starterPrompts.map((prompt) => (
-                    <button
-                      key={prompt}
-                      onClick={() => void sendMessage(prompt)}
-                      className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-950"
-                    >
-                      <span aria-hidden="true" className="text-[15px] leading-none text-slate-400">
-                        ↳
-                      </span>
-                      <span>{prompt}</span>
-                    </button>
-                  ))}
-                </div>
+                {noChatStarted ? (
+                  <div className="mx-auto mb-3 flex max-w-3xl gap-2 overflow-x-auto">
+                    {starterPrompts.map((prompt) => (
+                      <button
+                        key={prompt}
+                        onClick={() => void sendMessage(prompt)}
+                        className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                      >
+                        <span aria-hidden="true" className="text-[15px] leading-none text-slate-400">
+                          ↳
+                        </span>
+                        <span>{prompt}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
                 <form onSubmit={onSubmit} className="chat-composer mx-auto max-w-3xl rounded-full border border-slate-200 bg-white p-2">
                   <label className="sr-only" htmlFor="agent-answer">
                     Message Caseway filing agent
