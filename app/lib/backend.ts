@@ -78,8 +78,23 @@ export type LegalAutomationWorkflow = {
   adapter: string;
   estimatedTime: string;
   requiredReview: string;
+  officialSourceUrl: string;
+  officialFilingRoute: string;
+  officialRequirements: string[];
   integrationIds: GovernmentIntegration["id"][];
   fields: LegalAutomationField[];
+};
+
+export type GeneratedLegalDocument = {
+  title: string;
+  fileName: string;
+  kind: "legal_document" | "government_form_payload";
+  officialRoute: string;
+  sourceUrl: string;
+  sections: Array<{
+    heading: string;
+    body: string;
+  }>;
 };
 
 export type LegalAutomationRequest = {
@@ -110,8 +125,24 @@ export const legalAutomationWorkflows: LegalAutomationWorkflow[] = [
     adapter: "income-tax-efiling-adapter",
     estimatedTime: "8-12 min",
     requiredReview: "CA or tax professional review before final submission",
+    officialSourceUrl: "https://www.incometax.gov.in/",
+    officialFilingRoute:
+      "Income-tax returns are filed through the Income Tax e-Filing Portal; live API submission requires registered ERI-style credentials, taxpayer consent, validation, and e-verification.",
+    officialRequirements: [
+      "Assessment year and correct ITR form selection",
+      "PAN, income heads, deductions, taxes paid, and verified bank account",
+      "Review of AIS/TIS, Form 26AS, salary/business records, and tax computation",
+      "Taxpayer authentication and e-verification before live submission",
+    ],
     integrationIds: ["income_tax_eri", "digilocker_apisetu"],
     fields: [
+      {
+        id: "itrForm",
+        label: "ITR form",
+        question: "Which ITR form should I prepare, if you know it? If not, describe your income and I will infer a likely form for review.",
+        required: true,
+        placeholder: "Example: ITR-1, ITR-2, ITR-3, or not sure",
+      },
       {
         id: "assessmentYear",
         label: "Assessment year",
@@ -174,8 +205,24 @@ export const legalAutomationWorkflows: LegalAutomationWorkflow[] = [
     adapter: "edaakhil-complaint-adapter",
     estimatedTime: "10-15 min",
     requiredReview: "Advocate review recommended for high-value or complex claims",
+    officialSourceUrl: "https://e-jagriti.gov.in/static/media/CC_Filing.34e0fc5dd03b1d864cab.pdf",
+    officialFilingRoute:
+      "Consumer complaints are prepared for the e-Jagriti/e-Daakhil portal: File New Case, choose Consumer Complaint, enter case details, parties, upload mandatory documents, preview, then final submit after confirmation.",
+    officialRequirements: [
+      "Case details including amount paid, claim amount, date of cause of action, state, district, category, and subcategory",
+      "Complainant and opposite party details",
+      "Mandatory documents: Index, Proforma, Synopsis with list of dates/events, Memo of Parties, complaint with notarised affidavit, annexures, and Vakalatnama where applicable",
+      "Limitation check, normally within 2 years of cause of action unless delay condonation is needed",
+    ],
     integrationIds: ["edaakhil_ejagriti", "digilocker_apisetu"],
     fields: [
+      {
+        id: "complainantDetails",
+        label: "Complainant details",
+        question: "What are the complainant name, city/state, and contact details to use in the complaint draft?",
+        required: true,
+        sensitive: true,
+      },
       {
         id: "oppositeParty",
         label: "Opposite party",
@@ -185,7 +232,19 @@ export const legalAutomationWorkflows: LegalAutomationWorkflow[] = [
       {
         id: "purchaseDetails",
         label: "Purchase details",
-        question: "What did you buy or pay for, and when?",
+        question: "What did you buy or pay for, when, and what amount did you pay?",
+        required: true,
+      },
+      {
+        id: "causeOfActionDate",
+        label: "Cause of action date",
+        question: "What is the date of cause of action or the latest date when the problem/refusal happened?",
+        required: true,
+      },
+      {
+        id: "stateDistrictCategory",
+        label: "State, district, category",
+        question: "Which state, district, case category, and subcategory should be used for the consumer portal?",
         required: true,
       },
       {
@@ -206,6 +265,12 @@ export const legalAutomationWorkflows: LegalAutomationWorkflow[] = [
         question: "What is the approximate claim amount?",
         required: true,
       },
+      {
+        id: "documents",
+        label: "Supporting documents",
+        question: "Which supporting documents or annexures do you have: invoice, warranty, emails, screenshots, notice, payment receipt, or other proof?",
+        required: true,
+      },
     ],
   },
   {
@@ -217,6 +282,15 @@ export const legalAutomationWorkflows: LegalAutomationWorkflow[] = [
     adapter: "notice-reply-drafting-adapter",
     estimatedTime: "6-10 min",
     requiredReview: "Enrolled advocate approval required before sending",
+    officialSourceUrl: "https://apisetu.gov.in/",
+    officialFilingRoute:
+      "A legal notice reply is a document drafting workflow, not a government form submission. The generated reply should be reviewed by an enrolled advocate before it is sent.",
+    officialRequirements: [
+      "Notice date, sender, deadline, allegations, demanded relief/payment, and your factual position",
+      "Supporting contracts, messages, receipts, and prior correspondence",
+      "Clear admissions/denials without unsupported allegations",
+      "Advocate review before dispatch",
+    ],
     integrationIds: ["digilocker_apisetu"],
     fields: [
       {
@@ -260,6 +334,15 @@ export const legalAutomationWorkflows: LegalAutomationWorkflow[] = [
     adapter: "ecourts-filing-packet-adapter",
     estimatedTime: "12-18 min",
     requiredReview: "Advocate vetting required before filing",
+    officialSourceUrl: "https://services.ecourts.gov.in/",
+    officialFilingRoute:
+      "Court matters are prepared for eCourts/eFiling portal handoff. Public eCourts Services support case lookup with identifiers/CNR and captcha; live filing requires authenticated portal access, signed pleadings, annexures, fee payment, and court-specific scrutiny.",
+    officialRequirements: [
+      "Correct forum, territorial/pecuniary jurisdiction, parties, facts in date order, reliefs, and limitation check",
+      "Signed pleading/petition/application, affidavit/verification, annexures, index, memo of parties, and court fee where applicable",
+      "Advocate/litigant login and portal-specific upload/payment steps",
+      "Human legal review before filing",
+    ],
     integrationIds: ["ecourts_efiling", "ecourts_epay", "ecourts_services", "digilocker_apisetu"],
     fields: [
       {
@@ -309,8 +392,8 @@ export const governmentIntegrations: GovernmentIntegration[] = [
     owner: "Income Tax Department",
     access: "partner-gated-api",
     status: "requires-registration",
-    baseUrl: "https://www.incometax.gov.in/iec/foportal/api-specifications",
-    sourceUrl: "https://www.incometax.gov.in/iec/foportal/api-specifications",
+    baseUrl: "https://www.incometax.gov.in/",
+    sourceUrl: "https://www.incometax.gov.in/",
     supports: [
       "ERI login session",
       "Add or activate taxpayer client with consent",
@@ -377,8 +460,8 @@ export const governmentIntegrations: GovernmentIntegration[] = [
     owner: "eCommittee, Supreme Court of India / NIC",
     access: "reference-data",
     status: "implementable",
-    baseUrl: "https://ecourts.gov.in/ecourts2.0/",
-    sourceUrl: "https://ecourts.gov.in/",
+    baseUrl: "https://services.ecourts.gov.in/",
+    sourceUrl: "https://services.ecourts.gov.in/",
     supports: [
       "Case status lookup",
       "Cause lists",
@@ -437,8 +520,8 @@ export const governmentIntegrations: GovernmentIntegration[] = [
     owner: "Department of Consumer Affairs / Consumer Commissions",
     access: "portal-flow",
     status: "requires-human-portal-step",
-    baseUrl: "https://edaakhil.nic.in/",
-    sourceUrl: "https://www.india.gov.in/",
+    baseUrl: "https://e-jagriti.gov.in/",
+    sourceUrl: "https://e-jagriti.gov.in/static/media/CC_Filing.34e0fc5dd03b1d864cab.pdf",
     supports: [
       "Consumer complaint filing",
       "Fee payment",
@@ -907,6 +990,7 @@ function isWorkflowIntentOnly(message: string, workflow: LegalAutomationWorkflow
 }
 
 function buildFilingPacket(workflow: LegalAutomationWorkflow, collected: Record<string, string>) {
+  const integration = resolveIntegration(undefined, workflow);
   const fields = workflow.fields.map((field) => ({
     id: field.id,
     label: field.label,
@@ -920,20 +1004,147 @@ function buildFilingPacket(workflow: LegalAutomationWorkflow, collected: Record<
     adapter: workflow.adapter,
     mode: "draft_before_submission",
     fields,
+    officialRoute: workflow.officialFilingRoute,
+    officialSourceUrl: workflow.officialSourceUrl,
+    officialRequirements: workflow.officialRequirements,
+    generatedDocument: buildGeneratedDocument(workflow, integration, collected),
     declaration:
       "The user must verify every detail, attach supporting documents, complete identity/signature requirements, and approve final submission.",
     payloadPreview: Object.fromEntries(fields.map((field) => [field.id, field.value])),
   };
 }
 
+function buildGeneratedDocument(
+  workflow: LegalAutomationWorkflow,
+  integration: GovernmentIntegration,
+  collected: Record<string, string>,
+): GeneratedLegalDocument {
+  const get = (id: string, fallback = "To be confirmed") => collected[id]?.trim() || fallback;
+  const sections: GeneratedLegalDocument["sections"] = [
+    {
+      heading: "Official filing route",
+      body: workflow.officialFilingRoute,
+    },
+    {
+      heading: "Review warning",
+      body: `${workflow.requiredReview}. This draft is generated from chat intake and must be checked before signing, uploading, paying a fee, or submitting to any government system.`,
+    },
+  ];
+
+  if (workflow.id === "consumer_complaint") {
+    sections.push(
+      {
+        heading: "Draft consumer complaint",
+        body: [
+          `Complainant: ${get("complainantDetails")}`,
+          `Opposite party: ${get("oppositeParty")}`,
+          `Purchase/service details: ${get("purchaseDetails")}`,
+          `Cause of action date: ${get("causeOfActionDate")}`,
+          `State, district, category/subcategory: ${get("stateDistrictCategory")}`,
+          `Problem: ${get("problem")}`,
+          `Relief sought: ${get("relief")}`,
+          `Claim amount: ${get("claimAmount")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "e-Jagriti document checklist",
+        body:
+          "Prepare the mandatory upload set: Index, Proforma for filing consumer complaint, Synopsis with list of dates/events, Memo of Parties, Consumer Complaint with notarised affidavit, annexures/supporting documents, IA application if any, and Vakalatnama where an advocate is engaged.",
+      },
+      {
+        heading: "Portal payload to review",
+        body:
+          "Caseway will map the chat answers into the e-Jagriti/e-Daakhil style fields for case details, complainant details, opposite party details, document titles, commission selection, preview, and final submit. Live submission still requires portal login, declaration, fee/payment where applicable, and final user confirmation.",
+      },
+    );
+  } else if (workflow.id === "income_tax_return") {
+    sections.push(
+      {
+        heading: "Income tax return preparation sheet",
+        body: [
+          `Likely ITR form: ${get("itrForm")}`,
+          `Assessment year: ${get("assessmentYear")}`,
+          `PAN: ${get("pan", "Masked or pending")}`,
+          `Income sources: ${get("incomeSources")}`,
+          `Annual income: ${get("annualIncome")}`,
+          `Deductions claimed: ${get("deductions")}`,
+          `Tax already paid: ${get("taxPaid")}`,
+          `Refund bank account: ${get("bankAccount", "Masked or pending")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "Official e-filing requirements",
+        body:
+          "Before submission, reconcile AIS/TIS, Form 26AS, Form 16 or business records, capital-gains statements, deduction proofs, bank details, and tax computation. The Income Tax e-Filing Portal requires validation and taxpayer e-verification before a return is treated as filed.",
+      },
+      {
+        heading: "API/portal payload to review",
+        body:
+          "Caseway prepares a registered-ERI style payload for review. Live filing cannot be sent from this prototype without registered e-filing/ERI credentials, taxpayer authentication, OTP/e-verification, and acknowledgement capture.",
+      },
+    );
+  } else if (workflow.id === "legal_notice_reply") {
+    sections.push(
+      {
+        heading: "Draft reply brief",
+        body: [
+          `Notice date: ${get("noticeDate")}`,
+          `Sender: ${get("sender")}`,
+          `Deadline: ${get("deadline")}`,
+          `Allegations/demands: ${get("allegations")}`,
+          `Your position: ${get("yourPosition")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "Advocate review checklist",
+        body:
+          "Confirm limitation/deadline, preserve all supporting documents, avoid accidental admissions, verify the sender and claim amount, and have an enrolled advocate approve the final reply before dispatch.",
+      },
+    );
+  } else {
+    sections.push(
+      {
+        heading: "Draft court filing brief",
+        body: [
+          `Matter type: ${get("matterType")}`,
+          `Jurisdiction/forum: ${get("jurisdiction")}`,
+          `Parties: ${get("parties")}`,
+          `Facts in date order: ${get("facts")}`,
+          `Relief sought: ${get("relief")}`,
+          `Supporting documents/exhibits: ${get("documents")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "eCourts/eFiling readiness",
+        body:
+          "Prepare signed pleadings, affidavit/verification, index, memo of parties, annexures, court-fee details, and any court-specific formats. Public eCourts Services are useful for case lookup, but new filing requires authenticated eFiling portal access and human legal review.",
+      },
+    );
+  }
+
+  sections.push({
+    heading: "Submission handling",
+    body: makeIntegrationNextStep(integration),
+  });
+
+  return {
+    title: `${workflow.name} draft`,
+    fileName: `${workflow.id}-caseway-draft.pdf`,
+    kind: integration.implementationMode === "api-adapter" ? "government_form_payload" : "legal_document",
+    officialRoute: workflow.officialFilingRoute,
+    sourceUrl: workflow.officialSourceUrl,
+    sections,
+  };
+}
+
 function makeIntegrationActions(integration: GovernmentIntegration) {
   if (integration.implementationMode === "api-adapter") {
-    return ["Review generated packet", "Confirm consent", "Submit through registered partner API"];
+    return ["Review generated document", "Confirm consent", "Prepare registered API payload"];
   }
   if (integration.implementationMode === "data-fetch") {
     return ["Review data request", "Confirm consent", "Fetch documents through API"];
   }
-  return ["Review generated packet", "Open portal handoff", "Complete final authenticated portal step"];
+  return ["Review generated document", "Open portal handoff", "Complete final authenticated portal step"];
 }
 
 function makeAutomationGuardrails(
@@ -967,12 +1178,12 @@ function makeSubmissionAuditTrail(integration: GovernmentIntegration) {
 
 function makeIntegrationNextStep(integration: GovernmentIntegration) {
   if (integration.implementationMode === "api-adapter") {
-    return "Add registered credentials, schema validation, OTP/e-verification, and acknowledgement capture before live API submission.";
+    return "Caseway has prepared the registered-partner API payload. Live submission requires production credentials, schema validation, taxpayer/user authentication, OTP/e-verification where required, and acknowledgement capture.";
   }
   if (integration.implementationMode === "data-fetch") {
     return "Connect the API Setu/DigiLocker consent flow, callback, token exchange, and document storage before fetching live data.";
   }
-  return "Open the official portal with the generated packet, then let the user complete login, upload, payment, signature, and final submit.";
+  return "Caseway has prepared the portal-ready document and field payload. Open the official portal with the generated packet, then the user must complete login, upload, fee/payment, signature/declaration, preview, and final submit.";
 }
 
 export function createDocumentScan(body: DocumentScanRequest) {

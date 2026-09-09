@@ -60,6 +60,20 @@ type FilingPacket = {
     value: string;
     sensitive: boolean;
   }>;
+  officialRoute: string;
+  officialSourceUrl: string;
+  officialRequirements: string[];
+  generatedDocument: {
+    title: string;
+    fileName: string;
+    kind: "legal_document" | "government_form_payload";
+    officialRoute: string;
+    sourceUrl: string;
+    sections: Array<{
+      heading: string;
+      body: string;
+    }>;
+  };
   declaration: string;
   payloadPreview: Record<string, string>;
 };
@@ -149,11 +163,11 @@ function workflowIntro(workflow: Workflow) {
 
 function buildPacketReviewText(agentTurn: AgentTurn) {
   return [
-    `I prepared a draft ${agentTurn.workflow.name.toLowerCase()} document.`,
+    `I prepared a draft ${agentTurn.workflow.name.toLowerCase()} document and government submission review packet.`,
     `Forum: ${agentTurn.workflow.forum}`,
     `Government route: ${agentTurn.integration.name}`,
-    "Review the document preview below. If it looks correct, open the final confirmation step before I queue anything for submission.",
-  ].join("\n");
+    "Review the document preview below and download the PDF. If it looks correct, open the final confirmation step before I queue anything for submission or portal handoff.",
+  ].join("\n\n");
 }
 
 function renderInlineMarkdown(text: string, inverted = false) {
@@ -657,6 +671,25 @@ export default function AssistantPage() {
     }
   }
 
+  async function downloadPacketPdf(packet: FilingPacket) {
+    const response = await fetch("/api/documents/pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ packet }),
+    });
+    if (!response.ok) return;
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = packet.generatedDocument.fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void sendMessage();
@@ -777,10 +810,46 @@ export default function AssistantPage() {
                         {message.packet ? (
                           <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-900">
                             <div className="border-b border-slate-100 px-3 py-2">
-                              <p className="text-sm font-semibold">{message.packet.title}</p>
-                              <p className="mt-0.5 text-xs text-slate-500">{message.packet.forum}</p>
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                  <p className="text-sm font-semibold">{message.packet.generatedDocument.title}</p>
+                                  <p className="mt-0.5 text-xs text-slate-500">{message.packet.forum}</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => void downloadPacketPdf(message.packet as FilingPacket)}
+                                  className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 transition hover:border-slate-300 hover:bg-slate-50"
+                                >
+                                  Download PDF
+                                </button>
+                              </div>
                             </div>
-                            <div className="divide-y divide-slate-100">
+                            <div className="space-y-3 px-3 py-3">
+                              {message.packet.generatedDocument.sections.slice(0, 4).map((section) => (
+                                <section key={section.heading}>
+                                  <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{section.heading}</p>
+                                  <div className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">
+                                    {section.body}
+                                  </div>
+                                </section>
+                              ))}
+                            </div>
+                            <div className="border-t border-slate-100 px-3 py-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Official requirements</p>
+                              <ul className="mt-2 space-y-1.5 text-sm leading-5 text-slate-700">
+                                {message.packet.officialRequirements.map((requirement) => (
+                                  <li key={requirement} className="flex gap-2">
+                                    <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400" />
+                                    <span>{requirement}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              <p className="mt-3 break-all text-xs text-slate-400">Source: {message.packet.officialSourceUrl}</p>
+                            </div>
+                            <div className="divide-y divide-slate-100 border-t border-slate-100">
+                              <div className="px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">
+                                Government form payload preview
+                              </div>
                               {message.packet.fields.map((field) => (
                                 <div key={field.id} className="grid gap-1 px-3 py-2 sm:grid-cols-[150px_minmax(0,1fr)]">
                                   <p className="text-xs font-semibold text-slate-500">{field.label}</p>
