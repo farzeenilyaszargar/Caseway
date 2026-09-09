@@ -398,12 +398,6 @@ export default function AssistantPage() {
   const [filteredLawyers, setFilteredLawyers] = useState<Lawyer[]>(fallbackLawyers);
   const [lawyerStatus, setLawyerStatus] = useState("Listings ready");
   const [selectedLawyerId, setSelectedLawyerId] = useState<number | null>(null);
-  const [reviewRequest, setReviewRequest] = useState<{
-    lawyerName: string;
-    consultationId: string;
-    paymentId: string;
-    status: string;
-  } | null>(null);
   const selectedLawyer = useMemo(
     () => fallbackLawyers.find((lawyer) => lawyer.id === selectedLawyerId) || null,
     [selectedLawyerId],
@@ -677,55 +671,6 @@ export default function AssistantPage() {
 
   function removeDocument(id: string) {
     setAttachedDocuments((current) => current.filter((file) => file.id !== id));
-  }
-
-  async function requestReview(lawyer: Lawyer) {
-    setSelectedLawyerId(lawyer.id);
-    setReviewRequest(null);
-    setLawyerStatus("Creating review request");
-
-    try {
-      const consultationResponse = await fetch("/api/consultations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lawyerId: lawyer.id,
-          issueSummary: agentTurn?.draftPacket
-            ? `${agentTurn.draftPacket.title} review requested.`
-            : `${lawyer.specialty} legal review requested from lawyer finder.`,
-          preferredSlot: lawyer.availability,
-          contactMode: "video",
-        }),
-      });
-      const consultation = (await consultationResponse.json()) as { id?: string; error?: string };
-      if (!consultationResponse.ok || !consultation.id) {
-        throw new Error(consultation.error || "Consultation failed.");
-      }
-
-      const paymentResponse = await fetch("/api/payments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          consultationId: consultation.id,
-          amount: lawyer.price,
-          method: "upi",
-        }),
-      });
-      const payment = (await paymentResponse.json()) as { id?: string; status?: string };
-      if (!paymentResponse.ok || !payment.id || !payment.status) {
-        throw new Error("Payment order failed.");
-      }
-
-      setReviewRequest({
-        lawyerName: lawyer.name,
-        consultationId: consultation.id,
-        paymentId: payment.id,
-        status: payment.status,
-      });
-      setLawyerStatus("Review request ready");
-    } catch {
-      setLawyerStatus("Request failed");
-    }
   }
 
   const headerToggle = (
@@ -1173,10 +1118,7 @@ export default function AssistantPage() {
                 <button
                   type="button"
                   aria-label="Close lawyer details"
-                  onClick={() => {
-                    setSelectedLawyerId(null);
-                    setReviewRequest(null);
-                  }}
+                  onClick={() => setSelectedLawyerId(null)}
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-white hover:text-slate-950"
                 >
                   x
@@ -1205,25 +1147,10 @@ export default function AssistantPage() {
                 <p>Good fit for document review, filing readiness, and next-step planning.</p>
               </div>
 
-              {reviewRequest ? (
-                <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-5 text-emerald-800">
-                  <p className="font-semibold">{reviewRequest.lawyerName} review request is ready.</p>
-                  <p>Consultation: {reviewRequest.consultationId}</p>
-                  <p>Payment order: {reviewRequest.status} · {reviewRequest.paymentId}</p>
-                </div>
-              ) : null}
-
-              <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => void requestReview(selectedLawyer)}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:border-slate-300 hover:bg-white"
-                >
-                  Check availability
-                </button>
+              <div className="mt-5">
                 <Link
                   href={`/lawyers/${selectedLawyer.id}`}
-                  className="rounded-xl bg-slate-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-slate-800"
+                  className="block rounded-xl bg-slate-950 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-slate-800"
                 >
                   Choose lawyer
                 </Link>
