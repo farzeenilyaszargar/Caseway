@@ -280,7 +280,7 @@ function FloatingSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={() => (isOpen ? closeMenu() : onOpen())}
-        className="flex w-full items-center justify-between gap-3 rounded-md border border-transparent bg-white px-3 py-2 text-left text-sm font-medium text-slate-800 outline-none transition hover:bg-slate-50 focus:border-transparent focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+        className="flex w-full items-center justify-between gap-3 rounded-md border border-slate-100 bg-white px-3 py-2 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-200 hover:bg-slate-50 focus:border-slate-100 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
       >
         <span className="min-w-0">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</span>
