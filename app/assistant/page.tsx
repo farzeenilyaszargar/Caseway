@@ -694,7 +694,7 @@ export default function AssistantPage() {
   const headerToggle = (
     <div className="grid w-full grid-cols-2 rounded-full border border-slate-200/80 bg-white/92 p-0.5 sm:w-[320px]">
       {[
-        ["agent", "AI Legal Assistance"],
+        ["agent", "Legal AI"],
         ["lawyers", "Find Lawyers"],
       ].map(([value, label]) => (
         <button
