@@ -294,7 +294,7 @@ export const caseFiles = [
 export function makeReply(input: string) {
   const lower = input.toLowerCase();
   if (lower.includes("ipc") || lower.includes("indian penal code") || lower.includes("bns") || lower.includes("bharatiya nyaya sanhita")) {
-    return "IPC means the Indian Penal Code, 1860, which was India’s main criminal offence law for many years. For new offences and procedure after the criminal-law transition, users often need to check the Bharatiya Nyaya Sanhita, 2023 as well. Tell me the section or incident, and I can explain the offence, likely documents, police/court route, and when an advocate should review it.";
+    return "IPC means the Indian Penal Code, 1860, which was India’s main criminal offence law for many years. For newer offences, also check the Bharatiya Nyaya Sanhita, 2023. Tell me the section or incident, and I can explain what it generally means and when an advocate should review it.";
   }
   if (lower.includes("fir") || lower.includes("police complaint")) {
     return "An FIR is the police record that starts investigation for a cognizable offence. Keep the incident timeline, place, names, witnesses, screenshots, medical records if any, and ID proof ready. If police refuse registration, you can usually escalate to senior police officers or approach the magistrate, but an advocate should review urgent criminal matters.";
@@ -317,5 +317,5 @@ export function makeReply(input: string) {
   if (lower.includes("landlord") || lower.includes("notice") || lower.includes("rent")) {
     return "For a landlord or tenancy notice, check the notice date, lease clause relied on, cure period, rent dues, security deposit terms, and jurisdiction. Do not ignore the deadline. A short reply preserving your rights is often the first step before negotiation or filing.";
   }
-  return "I can help structure the issue under Indian law, identify documents, draft a checklist, and suggest whether this looks like property, family, consumer, tax, criminal, or labour counsel. This is general information only; an advocate should review facts before you act.";
+  return "I can answer Indian legal questions in plain English, explain common procedures, and help you think through the next practical step. If you mention filing, submission, tax, a complaint, a notice, a petition, or documents, I can switch into a guided intake flow. This is general information only; an advocate should review important decisions before you act.";
 }

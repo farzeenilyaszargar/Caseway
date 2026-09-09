@@ -122,10 +122,25 @@ function formatFileSize(size: number) {
 
 function detectsFilingIntent(message: string) {
   const lower = message.toLowerCase();
-  const filingWords = ["file", "filing", "submit", "prepare", "draft", "complaint", "return", "petition", "notice reply"];
-  const proceduralWords = ["tax", "itr", "consumer", "court", "legal notice", "petition", "case", "refund", "documents"];
+  const directWorkflowPhrases = [
+    "income tax",
+    "itr",
+    "tax return",
+    "document submission",
+    "submit documents",
+    "upload documents",
+    "consumer complaint",
+    "legal notice",
+    "notice reply",
+    "court filing",
+  ];
+  const filingWords = ["file", "filing", "submit", "submission", "prepare", "draft", "create", "complaint", "return", "petition", "notice"];
+  const proceduralWords = ["tax", "itr", "consumer", "court", "legal", "petition", "case", "refund", "document", "documents"];
 
-  return filingWords.some((word) => lower.includes(word)) && proceduralWords.some((word) => lower.includes(word));
+  return (
+    directWorkflowPhrases.some((phrase) => lower.includes(phrase)) ||
+    (filingWords.some((word) => lower.includes(word)) && proceduralWords.some((word) => lower.includes(word)))
+  );
 }
 
 function workflowIntro(workflow: Workflow) {
@@ -265,7 +280,7 @@ function FloatingSelect({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={() => (isOpen ? closeMenu() : onOpen())}
-        className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-slate-800 outline-none transition hover:border-slate-300 hover:bg-white focus:border-slate-950"
+        className="flex w-full items-center justify-between gap-3 rounded-md border border-transparent bg-white py-2 text-left text-sm font-medium text-slate-800 outline-none transition hover:bg-slate-50 focus:border-transparent focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
       >
         <span className="min-w-0">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</span>
@@ -303,7 +318,7 @@ function FloatingSelect({
                   autoCorrect="off"
                   autoCapitalize="none"
                   spellCheck={false}
-                  className="min-w-0 flex-1 bg-transparent py-1 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                  className="lawyer-filter-search min-w-0 flex-1 border-0 bg-transparent py-1 text-sm font-medium text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                   autoFocus
                 />
               </label>
@@ -953,7 +968,7 @@ export default function AssistantPage() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-2 rounded-lg border border-slate-200 bg-white p-2 md:grid-cols-[1fr_1fr_1fr_auto]">
+            <div className="mt-5 grid gap-3 bg-white md:grid-cols-[1fr_1fr_1fr_auto]">
               <FloatingSelect
                 label="City"
                 value={city}
@@ -973,7 +988,7 @@ export default function AssistantPage() {
                 onClose={() => setOpenDropdown(null)}
                 onSelect={setCategory}
               />
-              <label className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:border-slate-300">
+              <label className="bg-white py-2 text-xs font-semibold text-slate-500">
                 Fee up to Rs {budget}
                 <input
                   type="range"
@@ -983,16 +998,16 @@ export default function AssistantPage() {
                   value={budget}
                   onChange={(event) => setBudget(Number(event.target.value))}
                   autoComplete="off"
-                  className="mt-1 w-full accent-slate-950"
+                  className="mt-1 w-full outline-none accent-slate-950 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                 />
               </label>
-              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-slate-300">
+              <label className="flex items-center gap-2 bg-white py-2 text-sm font-medium text-slate-700">
                 <input
                   type="checkbox"
                   checked={urgentOnly}
                   onChange={(event) => setUrgentOnly(event.target.checked)}
                   autoComplete="off"
-                  className="h-4 w-4 accent-slate-950"
+                  className="h-4 w-4 outline-none accent-slate-950 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                 />
                 Today
               </label>

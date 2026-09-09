@@ -123,7 +123,7 @@ export default function LawyersPage() {
               <select
                 value={city}
                 onChange={(event) => setCity(event.target.value)}
-                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none ring-0 focus:border-slate-300 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
               >
                 {cities.map((item) => (
                   <option key={item}>{item}</option>
@@ -135,7 +135,7 @@ export default function LawyersPage() {
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900"
+                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none ring-0 focus:border-slate-300 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
               >
                 {categories.map((item) => (
                   <option key={item}>{item}</option>
