@@ -959,9 +959,6 @@ export default function AssistantPage() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
-                  Demo profiles
-                </span>
                 <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
                   {lawyerStatus} · {filteredLawyers.length} matches
                 </span>
