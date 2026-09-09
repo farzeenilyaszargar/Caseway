@@ -388,6 +388,8 @@ function FloatingSelect({
 
 export default function AssistantPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const chatScrollRef = useRef<HTMLDivElement | null>(null);
+  const shouldStickToBottomRef = useRef(true);
   const [mode, setMode] = useState<Mode>("agent");
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<Workflow["id"]>("income_tax_return");
@@ -423,6 +425,19 @@ export default function AssistantPage() {
       queueMicrotask(() => setMode("lawyers"));
     }
   }, []);
+
+  useEffect(() => {
+    if (mode !== "agent" || !shouldStickToBottomRef.current) return;
+    const scrollArea = chatScrollRef.current;
+    if (!scrollArea) return;
+
+    requestAnimationFrame(() => {
+      scrollArea.scrollTo({
+        top: scrollArea.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+  }, [isSending, messages.length, mode]);
 
   const cityOptions = useMemo(
     () => cities.map((item) => ({ value: item, label: item, helper: item === "All cities" ? "Across India" : "Local advocates" })),
@@ -510,6 +525,7 @@ export default function AssistantPage() {
   async function sendMessage(text = input) {
     const trimmed = text.trim();
     if ((!trimmed && attachedDocuments.length === 0) || isSending) return;
+    shouldStickToBottomRef.current = true;
     const documentSummary =
       attachedDocuments.length > 0
         ? `\n\nAttached documents: ${attachedDocuments.map((file) => `${file.name} (${formatFileSize(file.size)})`).join(", ")}`
@@ -713,6 +729,13 @@ export default function AssistantPage() {
     setAttachedDocuments((current) => current.filter((file) => file.id !== id));
   }
 
+  function updateChatBottomLock() {
+    const scrollArea = chatScrollRef.current;
+    if (!scrollArea) return;
+    const distanceFromBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight;
+    shouldStickToBottomRef.current = distanceFromBottom < 96;
+  }
+
   function changeMode(nextMode: Mode) {
     setMode(nextMode);
     const url = new URL(window.location.href);
@@ -771,7 +794,11 @@ export default function AssistantPage() {
           <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 overflow-hidden">
             <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/75">
               <h1 className="sr-only">AI Legal Assistance</h1>
-              <div className="relative min-h-0 flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
+              <div
+                ref={chatScrollRef}
+                onScroll={updateChatBottomLock}
+                className="relative min-h-0 flex-1 scroll-smooth overflow-y-auto bg-white px-3 py-6 sm:px-6"
+              >
                 {noChatStarted ? (
                   <div className="pointer-events-none absolute inset-0 grid place-items-center px-6">
                     <div className="flex flex-col items-center">
