@@ -817,20 +817,15 @@ export default function AssistantPage() {
                   {messages.map((message, index) => (
                     <div
                       key={`${message.role}-${index}`}
-                      className={`group flex items-start gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                      className={`group flex items-start ${message.role === "user" ? "justify-end" : "justify-start"}`}
                     >
-                      {message.role !== "user" ? (
-                        <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-950 text-[11px] font-semibold text-white">
-                          न
-                        </div>
-                      ) : null}
                       <div
-                        className={`max-w-[84%] px-4 py-3 text-[15px] leading-6 ${
+                        className={`max-w-[84%] text-[15px] leading-6 ${
                           message.role === "user"
-                            ? "rounded-xl bg-slate-950 text-white"
+                            ? "rounded-[1.4rem] bg-slate-950 px-4 py-2.5 text-white"
                             : message.role === "system"
-                              ? "rounded-xl border border-slate-200 bg-white text-slate-600"
-                              : "rounded-xl border border-slate-200 bg-white text-slate-900"
+                              ? "px-0 py-1 text-slate-600"
+                              : "px-0 py-1 text-slate-900"
                         }`}
                       >
                         <MarkdownText text={message.text} inverted={message.role === "user"} />
@@ -909,11 +904,8 @@ export default function AssistantPage() {
                     </div>
                   ))}
                   {isSending ? (
-                    <div className="group flex items-start gap-3 justify-start">
-                      <div className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-950 text-[11px] font-semibold text-white">
-                        न
-                      </div>
-                      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] leading-6 text-slate-500">
+                    <div className="group flex items-start justify-start">
+                      <div className="max-w-[84%] px-0 py-1 text-[15px] leading-6 text-slate-500">
                         Thinking...
                       </div>
                     </div>
