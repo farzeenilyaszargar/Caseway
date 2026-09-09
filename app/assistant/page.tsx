@@ -403,6 +403,13 @@ export default function AssistantPage() {
     [selectedLawyerId],
   );
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "lawyers") {
+      queueMicrotask(() => setMode("lawyers"));
+    }
+  }, []);
+
   const cityOptions = useMemo(
     () => cities.map((item) => ({ value: item, label: item, helper: item === "All cities" ? "Across India" : "Local advocates" })),
     [],
@@ -673,6 +680,17 @@ export default function AssistantPage() {
     setAttachedDocuments((current) => current.filter((file) => file.id !== id));
   }
 
+  function changeMode(nextMode: Mode) {
+    setMode(nextMode);
+    const url = new URL(window.location.href);
+    if (nextMode === "lawyers") {
+      url.searchParams.set("mode", "lawyers");
+    } else {
+      url.searchParams.delete("mode");
+    }
+    window.history.replaceState(null, "", url.toString());
+  }
+
   const headerToggle = (
     <div className="grid w-full grid-cols-2 rounded-full border border-slate-200/80 bg-white/92 p-0.5 sm:w-[320px]">
       {[
@@ -681,7 +699,7 @@ export default function AssistantPage() {
       ].map(([value, label]) => (
         <button
           key={value}
-          onClick={() => setMode(value as Mode)}
+          onClick={() => changeMode(value as Mode)}
           className={`rounded-full px-3 py-1.5 text-xs font-medium ${
             mode === value
               ? "bg-slate-950 text-white"
