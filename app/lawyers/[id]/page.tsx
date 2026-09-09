@@ -2,24 +2,6 @@ import Link from "next/link";
 import { AppShell } from "../../components/AppShell";
 import { lawyers } from "../../data";
 
-const caseDocuments = [
-  {
-    name: "Filing packet draft.pdf",
-    status: "Ready for review",
-    detail: "Generated from AI legal assistance intake",
-  },
-  {
-    name: "Identity and address proof.zip",
-    status: "Needs advocate check",
-    detail: "PAN, Aadhaar, and address record placeholders",
-  },
-  {
-    name: "Evidence bundle.pdf",
-    status: "Shared",
-    detail: "Invoices, notices, screenshots, and supporting papers",
-  },
-];
-
 const chatMessages = [
   {
     role: "lawyer",
@@ -43,7 +25,10 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
     <AppShell>
       <section className="mx-auto grid h-full max-w-7xl gap-4 overflow-y-auto px-4 py-4 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:px-8">
         <aside className="rounded-lg border border-slate-200 bg-white p-4">
-          <Link href="/assistant" className="text-sm font-medium text-slate-500 hover:text-slate-950">
+          <Link href="/assistant?mode=lawyers" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-950">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M19 12H5M11 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             Back to lawyers
           </Link>
           <div className="mt-5 flex items-center gap-4">
@@ -81,28 +66,7 @@ export default async function LawyerWorkspacePage({ params }: { params: Promise<
           </p>
         </aside>
 
-        <div className="grid min-h-[720px] gap-4 lg:grid-rows-[auto_minmax(0,1fr)]">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-950">Case documents</h2>
-                <p className="mt-1 text-sm text-slate-500">Shared packet for advocate review and filing readiness.</p>
-              </div>
-              <button className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50">
-                Upload document
-              </button>
-            </div>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              {caseDocuments.map((document) => (
-                <article key={document.name} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <p className="font-semibold text-slate-950">{document.name}</p>
-                  <p className="mt-1 text-xs font-medium text-emerald-700">{document.status}</p>
-                  <p className="mt-2 text-xs leading-5 text-slate-500">{document.detail}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-
+        <div className="grid min-h-[720px]">
           <div className="flex min-h-0 flex-col rounded-lg border border-slate-200 bg-white">
             <div className="border-b border-slate-100 px-4 py-3">
               <h2 className="text-lg font-semibold text-slate-950">Chat with {lawyer.name.replace("Adv. ", "")}</h2>
