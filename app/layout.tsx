@@ -20,9 +20,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: 'Caseway | Law AI',
+  title: 'Caseway | AI Legal Assistance',
   description:
-    'A clean chat-first Law AI for Indian filing workflows and advocate review.',
+    'A clean chat-first AI legal assistance app for Indian filing workflows and advocate review.',
   icons: {
     icon: [
       {
@@ -34,14 +34,14 @@ export const metadata: Metadata = {
     apple: '/icon.png',
   },
   openGraph: {
-    title: 'Caseway | Law AI',
+    title: 'Caseway | AI Legal Assistance',
     description:
       'Chat-first Indian legal filing workflows with advocate matching.',
     images: ['/og.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Caseway | Law AI',
+    title: 'Caseway | AI Legal Assistance',
     description:
       'Chat-first Indian legal filing workflows with advocate matching.',
     images: ['/og.png'],

@@ -694,7 +694,7 @@ export default function AssistantPage() {
   const headerToggle = (
     <div className="grid w-full grid-cols-2 rounded-full border border-slate-200/80 bg-white/92 p-0.5 sm:w-[320px]">
       {[
-        ["agent", "Law AI"],
+        ["agent", "AI Legal Assistance"],
         ["lawyers", "Find Lawyers"],
       ].map(([value, label]) => (
         <button
@@ -737,7 +737,7 @@ export default function AssistantPage() {
         {mode === "agent" ? (
           <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 overflow-hidden">
             <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/75">
-              <h1 className="sr-only">Law AI</h1>
+              <h1 className="sr-only">AI Legal Assistance</h1>
               <div className="relative min-h-0 flex-1 overflow-y-auto bg-white px-3 py-6 sm:px-6">
                 {noChatStarted ? (
                   <div className="pointer-events-none absolute inset-0 grid place-items-center px-6">
