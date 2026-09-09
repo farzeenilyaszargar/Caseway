@@ -827,14 +827,14 @@ export default function AssistantPage() {
 
               <div className="bg-white px-3 pb-5 sm:px-6">
                 {noChatStarted ? (
-                  <div className="mx-auto mb-3 flex max-w-3xl gap-2 overflow-x-auto">
+                  <div className="mx-auto mb-2 flex max-w-3xl gap-1.5 overflow-x-auto">
                     {starterPrompts.map((prompt) => (
                       <button
                         key={prompt}
                         onClick={() => void sendMessage(prompt)}
-                        className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-950"
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[10px] font-medium text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-950"
                       >
-                        <span aria-hidden="true" className="text-[15px] leading-none text-slate-400">
+                        <span aria-hidden="true" className="text-[13px] leading-none text-slate-400">
                           ↳
                         </span>
                         <span>{prompt}</span>
