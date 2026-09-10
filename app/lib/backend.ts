@@ -1,4 +1,7 @@
 import { caseFiles, categories, cities, intakeQuestions, lawyers, makeReply, services } from "../data";
+import { buildConnectorCatalog, resolveConnectorAdapter } from "./orchestration/connectors";
+import { runActionPolicyCheck, createAuditEvent } from "./orchestration/risk-security";
+import { createWorkflowRunSnapshot, extractVaultClaims } from "./orchestration/vault";
 
 export type ApiError = {
   error: string;
@@ -58,7 +61,13 @@ export type GovernmentIntegration = {
     | "ecourts_services"
     | "ecourts_efiling"
     | "ecourts_epay"
-    | "edaakhil_ejagriti";
+    | "edaakhil_ejagriti"
+    | "mca_v3"
+    | "parivahan_sarathi"
+    | "pan_services"
+    | "passport_seva"
+    | "udyam_registration"
+    | "aadhaar_offline";
   name: string;
   owner: string;
   access: "official-api" | "partner-gated-api" | "portal-flow" | "reference-data";
@@ -71,11 +80,29 @@ export type GovernmentIntegration = {
 };
 
 export type LegalAutomationWorkflow = {
-  id: "income_tax_return" | "consumer_complaint" | "legal_notice_reply" | "court_filing";
+  id:
+    | "income_tax_return"
+    | "consumer_complaint"
+    | "legal_notice_reply"
+    | "court_filing"
+    | "gst_registration"
+    | "driving_licence_renewal"
+    | "pan_correction"
+    | "passport_application"
+    | "rental_agreement"
+    | "udyam_registration";
   name: string;
   forum: string;
   description: string;
   adapter: string;
+  version?: string;
+  jurisdiction?: string;
+  submissionMode?: "read" | "verify" | "draft_pdf" | "portal_handoff" | "partner_api_submit" | "official_api_submit";
+  intents?: string[];
+  eligibilityRules?: string[];
+  requiredDocuments?: string[];
+  validations?: string[];
+  approvalSteps?: string[];
   estimatedTime: string;
   requiredReview: string;
   officialSourceUrl: string;
@@ -383,6 +410,224 @@ export const legalAutomationWorkflows: LegalAutomationWorkflow[] = [
       },
     ],
   },
+  {
+    id: "gst_registration",
+    name: "GST registration readiness",
+    forum: "GST Portal / GSTN",
+    description:
+      "Collects business, promoter, address, bank, activity, and document details for GST registration readiness.",
+    adapter: "gst-registration-readiness-adapter",
+    version: "2026.1",
+    jurisdiction: "India",
+    submissionMode: "partner_api_submit",
+    intents: ["register for gst", "gst registration", "get gstin", "gst application"],
+    eligibilityRules: [
+      "Applicant must confirm business constitution, principal place of business, authorized signatory, and applicable state.",
+      "Live submission requires GST portal access or authorized ASP/GSP style integration.",
+    ],
+    requiredDocuments: ["PAN", "business address proof", "promoter identity proof", "bank proof", "photograph/signatory proof"],
+    validations: ["GSTIN state code and PAN mapping where applicable", "PAN format", "state jurisdiction selection"],
+    approvalSteps: ["Review application details", "Approve government data use", "Complete OTP/e-sign/DSC on official route"],
+    estimatedTime: "10-15 min",
+    requiredReview: "CA/tax professional review recommended before GST registration submission",
+    officialSourceUrl: "https://www.gst.gov.in/",
+    officialFilingRoute:
+      "GST registration is completed through the GST Portal or authorized GST ecosystem routes. Live submission requires applicant authentication, OTP/e-sign/DSC where applicable, and acknowledgement capture.",
+    officialRequirements: [
+      "Business constitution, legal name, trade name, state, district, jurisdiction, and principal place of business",
+      "Promoter/partner/director details and authorized signatory",
+      "Proof of business address, bank details, PAN, photograph, and constitution documents where applicable",
+      "Authentication and final submission through the GST Portal or authorized provider route",
+    ],
+    integrationIds: ["gstn_gsp", "digilocker_apisetu"],
+    fields: [
+      { id: "businessName", label: "Business name", question: "What is the legal name and trade name of the business?", required: true },
+      { id: "constitution", label: "Business constitution", question: "Is it proprietorship, partnership, LLP, company, trust, or something else?", required: true },
+      { id: "state", label: "State", question: "Which state should the GST registration be applied in?", required: true },
+      { id: "pan", label: "PAN", question: "What PAN should be linked to the GST application? A masked value is fine for now.", required: true, sensitive: true },
+      { id: "businessAddress", label: "Business address", question: "What is the principal place of business address?", required: true, sensitive: true },
+      { id: "authorizedSignatory", label: "Authorized signatory", question: "Who will be the authorized signatory?", required: true, sensitive: true },
+      { id: "businessActivity", label: "Business activity", question: "What goods or services will the business supply?", required: true },
+      { id: "documents", label: "Documents", question: "Which GST supporting documents do you already have?", required: true },
+    ],
+  },
+  {
+    id: "driving_licence_renewal",
+    name: "Driving licence renewal",
+    forum: "Parivahan / Sarathi",
+    description:
+      "Prepares a driving licence renewal checklist, user data packet, medical-form reminder, and official portal handoff.",
+    adapter: "sarathi-dl-renewal-handoff-adapter",
+    version: "2026.1",
+    jurisdiction: "India state transport departments",
+    submissionMode: "portal_handoff",
+    intents: ["renew driving licence", "dl renewal", "sarathi licence renewal"],
+    eligibilityRules: [
+      "State-specific RTO rules and fees must be confirmed on Sarathi.",
+      "Medical certificate requirements depend on age, licence class, and transport/non-transport category.",
+    ],
+    requiredDocuments: ["existing driving licence", "address proof", "age proof", "photo/signature", "medical certificate if applicable"],
+    validations: ["DL number presence", "state selected", "expiry date captured", "medical requirement flagged"],
+    approvalSteps: ["Review details", "Open Sarathi handoff", "Complete CAPTCHA, payment, slot, and final submission on official portal"],
+    estimatedTime: "7-10 min",
+    requiredReview: "User must verify RTO/state requirements before portal submission",
+    officialSourceUrl: "https://sarathi.parivahan.gov.in/",
+    officialFilingRoute:
+      "Driving licence renewal is completed through Sarathi after selecting the concerned state, entering licence details, uploading required documents, paying fees, and completing any appointment or RTO step.",
+    officialRequirements: [
+      "Existing DL number, date of birth, state/RTO, licence expiry and class details",
+      "Address and identity proof, photograph/signature, and Form 1A medical certificate where applicable",
+      "Official portal login/CAPTCHA/payment/appointment steps must be completed by the user",
+    ],
+    integrationIds: ["parivahan_sarathi", "digilocker_apisetu"],
+    fields: [
+      { id: "state", label: "State", question: "Which state issued or should process the licence renewal?", required: true },
+      { id: "dlNumber", label: "Driving licence number", question: "What is the driving licence number? You can mask part of it.", required: true, sensitive: true },
+      { id: "dateOfBirth", label: "Date of birth", question: "What date of birth is linked to the licence?", required: true, sensitive: true },
+      { id: "expiryDate", label: "Expiry date", question: "When did or will the licence expire?", required: true },
+      { id: "licenceClass", label: "Licence class", question: "Is it LMV, MCWG, transport, or another class?", required: true },
+      { id: "addressChange", label: "Address change", question: "Do you need an address change with renewal?", required: true },
+    ],
+  },
+  {
+    id: "pan_correction",
+    name: "PAN correction handoff",
+    forum: "PAN service portal",
+    description:
+      "Prepares a PAN correction application packet and document checklist for official portal completion.",
+    adapter: "pan-correction-handoff-adapter",
+    version: "2026.1",
+    jurisdiction: "India",
+    submissionMode: "portal_handoff",
+    intents: ["pan correction", "change pan details", "pan card correction"],
+    eligibilityRules: ["Correction must match acceptable proof documents.", "Aadhaar/PAN linkage rules should be checked on official portals."],
+    requiredDocuments: ["PAN", "identity proof", "address proof", "date of birth proof", "supporting correction proof"],
+    validations: ["PAN format", "field-to-proof mapping", "correction reason captured"],
+    approvalSteps: ["Review corrected details", "Approve document use", "Complete official portal authentication/payment"],
+    estimatedTime: "6-9 min",
+    requiredReview: "User must verify identity proof and official portal requirements before submission",
+    officialSourceUrl: "https://www.incometax.gov.in/",
+    officialFilingRoute:
+      "PAN correction is completed on authorized PAN service routes linked from official tax services; live submission requires official portal authentication, document upload, payment, and acknowledgement.",
+    officialRequirements: [
+      "Existing PAN, corrected name/date of birth/address/parent details as applicable",
+      "Matching proof document for every correction requested",
+      "Official portal authentication, payment, and acknowledgement capture",
+    ],
+    integrationIds: ["pan_services", "digilocker_apisetu", "aadhaar_offline"],
+    fields: [
+      { id: "pan", label: "PAN", question: "What PAN needs correction? A masked value is fine.", required: true, sensitive: true },
+      { id: "correctionFields", label: "Correction fields", question: "Which PAN details need correction?", required: true },
+      { id: "currentDetails", label: "Current details", question: "What does the PAN currently show?", required: true, sensitive: true },
+      { id: "correctDetails", label: "Correct details", question: "What should the corrected details be?", required: true, sensitive: true },
+      { id: "proofDocuments", label: "Proof documents", question: "Which proof documents support the correction?", required: true },
+    ],
+  },
+  {
+    id: "passport_application",
+    name: "Passport application checklist",
+    forum: "Passport Seva",
+    description:
+      "Builds a passport application readiness packet, document checklist, and appointment handoff plan.",
+    adapter: "passport-seva-handoff-adapter",
+    version: "2026.1",
+    jurisdiction: "India",
+    submissionMode: "portal_handoff",
+    intents: ["passport application", "renew passport", "passport seva"],
+    eligibilityRules: ["Police verification and document requirements vary by application type.", "The user must complete official portal login, fee, and appointment."],
+    requiredDocuments: ["identity proof", "address proof", "date of birth proof", "old passport if renewal", "annexures where applicable"],
+    validations: ["application type", "address consistency", "proof document mapping"],
+    approvalSteps: ["Review checklist", "Open Passport Seva handoff", "Complete payment and appointment"],
+    estimatedTime: "8-12 min",
+    requiredReview: "User must verify Passport Seva document advisor and appointment details",
+    officialSourceUrl: "https://www.passportindia.gov.in/",
+    officialFilingRoute:
+      "Passport applications are completed through Passport Seva with online form entry, payment, appointment booking, document verification, and police verification where applicable.",
+    officialRequirements: [
+      "Application type, applicant identity, address, date of birth, family details, and previous passport details where applicable",
+      "Proof documents according to Passport Seva document advisor",
+      "Portal login, fee payment, appointment, and in-person document verification",
+    ],
+    integrationIds: ["passport_seva", "digilocker_apisetu"],
+    fields: [
+      { id: "applicationType", label: "Application type", question: "Is this a fresh passport, renewal, reissue, or change of details?", required: true },
+      { id: "applicantDetails", label: "Applicant details", question: "What applicant name, DOB, and city should be used?", required: true, sensitive: true },
+      { id: "address", label: "Address", question: "What present address should be used?", required: true, sensitive: true },
+      { id: "oldPassport", label: "Old passport", question: "If this is renewal/reissue, what old passport details are available?", required: true, sensitive: true },
+      { id: "documents", label: "Documents", question: "Which identity, address, DOB, and old-passport documents do you have?", required: true },
+    ],
+  },
+  {
+    id: "rental_agreement",
+    name: "Rental agreement draft",
+    forum: "State registration / stamp duty workflow",
+    description:
+      "Drafts a rental agreement and registration/stamp-duty readiness checklist for state-specific handoff.",
+    adapter: "rental-agreement-drafting-adapter",
+    version: "2026.1",
+    jurisdiction: "India state registration departments",
+    submissionMode: "draft_pdf",
+    intents: ["rental agreement", "rent agreement", "lease draft"],
+    eligibilityRules: ["Stamp duty, registration threshold, and e-registration support vary by state.", "Advocate review is recommended for unusual clauses."],
+    requiredDocuments: ["landlord ID", "tenant ID", "property proof", "address proof", "rent/deposit terms"],
+    validations: ["state captured", "term and rent captured", "party details captured"],
+    approvalSteps: ["Review draft", "Approve final PDF", "Complete state stamping/registration if required"],
+    estimatedTime: "5-8 min",
+    requiredReview: "Advocate review recommended before signing long-term or high-value lease documents",
+    officialSourceUrl: "https://apisetu.gov.in/",
+    officialFilingRoute:
+      "Rental agreement drafting is a document workflow. Stamping, notarisation, or registration depends on state rules and must be completed through the applicable state route.",
+    officialRequirements: [
+      "Landlord and tenant details, property address, rent, deposit, term, lock-in, notice period, maintenance, and permitted use",
+      "State-specific stamp duty and registration checks",
+      "Signature and witness requirements",
+    ],
+    integrationIds: ["digilocker_apisetu"],
+    fields: [
+      { id: "landlord", label: "Landlord", question: "Who is the landlord or licensor?", required: true, sensitive: true },
+      { id: "tenant", label: "Tenant", question: "Who is the tenant or licensee?", required: true, sensitive: true },
+      { id: "property", label: "Property", question: "What is the full property address?", required: true, sensitive: true },
+      { id: "rentDeposit", label: "Rent and deposit", question: "What are the monthly rent, deposit, and payment date?", required: true },
+      { id: "term", label: "Term", question: "What start date, end date, lock-in, and notice period should apply?", required: true },
+      { id: "specialTerms", label: "Special terms", question: "Any special terms about maintenance, pets, parking, subletting, or repairs?", required: true },
+    ],
+  },
+  {
+    id: "udyam_registration",
+    name: "Udyam registration readiness",
+    forum: "Udyam Registration",
+    description:
+      "Collects MSME/Udyam business details and prepares an official portal handoff packet.",
+    adapter: "udyam-registration-handoff-adapter",
+    version: "2026.1",
+    jurisdiction: "India",
+    submissionMode: "portal_handoff",
+    intents: ["udyam registration", "msme registration", "register msme"],
+    eligibilityRules: ["Enterprise classification depends on investment and turnover.", "Aadhaar/PAN/GSTIN requirements must follow the current official portal rules."],
+    requiredDocuments: ["Aadhaar/identity route", "PAN", "GSTIN if applicable", "business address", "bank details", "activity details"],
+    validations: ["PAN format", "GSTIN optional mapping", "NIC/activity description captured"],
+    approvalSteps: ["Review business data", "Approve identity data use", "Complete official portal OTP and final submission"],
+    estimatedTime: "6-10 min",
+    requiredReview: "User must confirm enterprise classification and official portal declarations",
+    officialSourceUrl: "https://udyamregistration.gov.in/",
+    officialFilingRoute:
+      "Udyam registration is completed on the official Udyam portal with applicant authentication and enterprise details. The final declaration and OTP/authentication must be completed by the user.",
+    officialRequirements: [
+      "Enterprise name, type, PAN/GSTIN where applicable, address, bank, activity/NIC details, investment, and turnover",
+      "Identity/authentication on the official portal",
+      "User declaration and final submission",
+    ],
+    integrationIds: ["udyam_registration", "aadhaar_offline", "digilocker_apisetu"],
+    fields: [
+      { id: "enterpriseName", label: "Enterprise name", question: "What is the enterprise name?", required: true },
+      { id: "enterpriseType", label: "Enterprise type", question: "Is it proprietorship, partnership, company, LLP, or another type?", required: true },
+      { id: "pan", label: "PAN", question: "What PAN should be used? A masked value is fine.", required: true, sensitive: true },
+      { id: "gstin", label: "GSTIN", question: "Do you have a GSTIN? If yes, what is it?", required: true, sensitive: true },
+      { id: "activity", label: "Activity", question: "What business activity or NIC description should be used?", required: true },
+      { id: "investmentTurnover", label: "Investment and turnover", question: "What are approximate investment and turnover figures?", required: true },
+      { id: "bankAddress", label: "Bank and address", question: "What bank details and business address should be used?", required: true, sensitive: true },
+    ],
+  },
 ];
 
 export const governmentIntegrations: GovernmentIntegration[] = [
@@ -535,6 +780,78 @@ export const governmentIntegrations: GovernmentIntegration[] = [
       "User confirmation before payment/submission",
     ],
     implementationMode: "portal-assist",
+  },
+  {
+    id: "mca_v3",
+    name: "MCA V3",
+    owner: "Ministry of Corporate Affairs",
+    access: "portal-flow",
+    status: "requires-registration",
+    baseUrl: "https://www.mca.gov.in/",
+    sourceUrl: "https://www.mca.gov.in/",
+    supports: ["Company incorporation readiness", "SPICe+ style data preparation", "ROC document checklist"],
+    requirements: ["MCA login", "DSC/e-sign route where applicable", "Professional certification for many filings"],
+    implementationMode: "portal-assist",
+  },
+  {
+    id: "parivahan_sarathi",
+    name: "Parivahan / Sarathi",
+    owner: "Ministry of Road Transport and Highways / State Transport Departments",
+    access: "portal-flow",
+    status: "requires-human-portal-step",
+    baseUrl: "https://sarathi.parivahan.gov.in/",
+    sourceUrl: "https://sarathi.parivahan.gov.in/",
+    supports: ["Driving licence renewal checklist", "State/RTO handoff", "Appointment and fee step preparation"],
+    requirements: ["State selection", "Official portal login/CAPTCHA", "Payment or appointment confirmation by user"],
+    implementationMode: "portal-assist",
+  },
+  {
+    id: "pan_services",
+    name: "PAN services",
+    owner: "Income Tax Department authorized PAN service ecosystem",
+    access: "portal-flow",
+    status: "requires-human-portal-step",
+    baseUrl: "https://www.incometax.gov.in/",
+    sourceUrl: "https://www.incometax.gov.in/",
+    supports: ["PAN correction readiness", "Proof mapping", "Portal handoff packet"],
+    requirements: ["Existing PAN", "Proof documents", "Official payment and acknowledgement step"],
+    implementationMode: "portal-assist",
+  },
+  {
+    id: "passport_seva",
+    name: "Passport Seva",
+    owner: "Ministry of External Affairs",
+    access: "portal-flow",
+    status: "requires-human-portal-step",
+    baseUrl: "https://www.passportindia.gov.in/",
+    sourceUrl: "https://www.passportindia.gov.in/",
+    supports: ["Passport application checklist", "Document advisor handoff", "Appointment readiness"],
+    requirements: ["Portal login", "Fee payment", "Appointment booking", "In-person document verification"],
+    implementationMode: "portal-assist",
+  },
+  {
+    id: "udyam_registration",
+    name: "Udyam Registration",
+    owner: "Ministry of Micro, Small and Medium Enterprises",
+    access: "portal-flow",
+    status: "requires-human-portal-step",
+    baseUrl: "https://udyamregistration.gov.in/",
+    sourceUrl: "https://udyamregistration.gov.in/",
+    supports: ["MSME/Udyam readiness", "Enterprise classification data", "Portal handoff packet"],
+    requirements: ["Applicant authentication", "PAN/GSTIN where applicable", "User declaration"],
+    implementationMode: "portal-assist",
+  },
+  {
+    id: "aadhaar_offline",
+    name: "Aadhaar offline verification",
+    owner: "UIDAI",
+    access: "official-api",
+    status: "implementable",
+    baseUrl: "https://uidai.gov.in/",
+    sourceUrl: "https://uidai.gov.in/",
+    supports: ["Offline XML/QR verification", "Masked identity verification", "Document provenance"],
+    requirements: ["User-provided offline Aadhaar artifact", "No unnecessary Aadhaar number storage", "Purpose-limited verification"],
+    implementationMode: "data-fetch",
   },
 ];
 
@@ -831,6 +1148,7 @@ export function listWorkflowTools() {
 export function getLegalAutomationWorkflows() {
   return {
     integrations: governmentIntegrations,
+    connectorCatalog: buildConnectorCatalog(),
     workflows: legalAutomationWorkflows.map((workflow) => ({
       ...withoutFields(workflow),
       requiredFieldCount: workflow.fields.filter((field) => field.required).length,
@@ -870,6 +1188,30 @@ export function createLegalAutomationTurn(body: LegalAutomationRequest) {
       completion,
       readyToReview,
       draftPacket: readyToReview ? buildFilingPacket(workflow, collected) : null,
+      workflowRun: createWorkflowRunSnapshot({
+        workflowId: workflow.id,
+        connectorId: integration.id,
+        collected,
+        missingFields: missingFields.map((field) => field.id),
+      }),
+      vaultClaims: extractVaultClaims(
+        collected,
+        new Set(workflow.fields.filter((field) => field.sensitive).map((field) => field.id)),
+        workflow.id,
+      ),
+      riskReview: runActionPolicyCheck({
+        action: readyToReview ? "draft" : "extract",
+        connectorId: integration.id,
+        submissionMode: workflow.submissionMode || "portal_handoff",
+        missingFields: missingFields.map((field) => field.id),
+      }),
+      auditEvents: [
+        createAuditEvent("workflow_turn_created", "caseway-agent", {
+          workflowId: workflow.id,
+          connectorId: integration.id,
+          readyToReview,
+        }),
+      ],
       actions: readyToReview
         ? makeIntegrationActions(integration)
         : ["Answer the next question", "Upload or paste supporting details", "Review before any submission"],
@@ -986,6 +1328,17 @@ export function submitLegalFiling(body: FilingSubmissionRequest) {
   if (missingField) {
     return { ok: false as const, error: badRequest(`${missingField.label} is required.`, missingField.id) };
   }
+  const policy = runActionPolicyCheck({
+    action: "submit",
+    consent: body.consent,
+    connectorId: integration.id,
+    submissionMode: workflow.submissionMode || "portal_handoff",
+  });
+  const connectorAdapter = resolveConnectorAdapter(integration.id);
+  const canSubmitLive =
+    policy.allowed &&
+    connectorAdapter.productionReady &&
+    connectorAdapter.capabilities.includes("submit");
 
   return {
     ok: true as const,
@@ -994,7 +1347,9 @@ export function submitLegalFiling(body: FilingSubmissionRequest) {
       workflowId: workflow.id,
       integrationId: integration.id,
       status:
-        integration.implementationMode === "api-adapter"
+        canSubmitLive
+          ? "queued_for_authorized_api_submission"
+          : integration.implementationMode === "api-adapter"
           ? "ready_for_partner_api_submission"
           : integration.implementationMode === "data-fetch"
             ? "ready_for_consent_data_fetch"
@@ -1002,7 +1357,16 @@ export function submitLegalFiling(body: FilingSubmissionRequest) {
       adapter: integration.id,
       forum: integration.name,
       packet: buildFilingPacket(workflow, collected),
-      auditTrail: makeSubmissionAuditTrail(integration),
+      connector: connectorAdapter,
+      riskReview: policy,
+      auditTrail: [
+        ...makeSubmissionAuditTrail(integration),
+        createAuditEvent("submission_gate_evaluated", "caseway-policy", {
+          workflowId: workflow.id,
+          connectorId: integration.id,
+          canSubmitLive,
+        }),
+      ],
       nextStep: makeIntegrationNextStep(integration),
       createdAt: new Date().toISOString(),
     },
@@ -1034,6 +1398,24 @@ function resolveAutomationWorkflow(
   const lower = message.toLowerCase();
   if (lower.includes("tax") || lower.includes("itr") || lower.includes("income return")) {
     return legalAutomationWorkflows[0];
+  }
+  if (lower.includes("gst") || lower.includes("gstin")) {
+    return legalAutomationWorkflows.find((workflow) => workflow.id === "gst_registration") || legalAutomationWorkflows[0];
+  }
+  if (lower.includes("driving") || lower.includes("licence") || lower.includes("license") || lower.includes("sarathi")) {
+    return legalAutomationWorkflows.find((workflow) => workflow.id === "driving_licence_renewal") || legalAutomationWorkflows[0];
+  }
+  if (lower.includes("pan")) {
+    return legalAutomationWorkflows.find((workflow) => workflow.id === "pan_correction") || legalAutomationWorkflows[0];
+  }
+  if (lower.includes("passport")) {
+    return legalAutomationWorkflows.find((workflow) => workflow.id === "passport_application") || legalAutomationWorkflows[0];
+  }
+  if (lower.includes("udyam") || lower.includes("msme")) {
+    return legalAutomationWorkflows.find((workflow) => workflow.id === "udyam_registration") || legalAutomationWorkflows[0];
+  }
+  if (lower.includes("rental") || lower.includes("rent agreement") || lower.includes("lease")) {
+    return legalAutomationWorkflows.find((workflow) => workflow.id === "rental_agreement") || legalAutomationWorkflows[0];
   }
   if (lower.includes("consumer") || lower.includes("refund") || lower.includes("warranty")) {
     return legalAutomationWorkflows[1];
@@ -1100,6 +1482,24 @@ function isWorkflowIntentOnly(message: string, workflow: LegalAutomationWorkflow
   }
   if (workflow.id === "court_filing") {
     return lower.includes("court") || lower.includes("filing packet");
+  }
+  if (workflow.id === "gst_registration") {
+    return lower.includes("gst") && (lower.includes("register") || lower.includes("registration"));
+  }
+  if (workflow.id === "driving_licence_renewal") {
+    return lower.includes("licence") || lower.includes("license") || lower.includes("driving");
+  }
+  if (workflow.id === "pan_correction") {
+    return lower.includes("pan") && (lower.includes("correction") || lower.includes("change"));
+  }
+  if (workflow.id === "passport_application") {
+    return lower.includes("passport");
+  }
+  if (workflow.id === "rental_agreement") {
+    return lower.includes("rental") || lower.includes("rent agreement") || lower.includes("lease");
+  }
+  if (workflow.id === "udyam_registration") {
+    return lower.includes("udyam") || lower.includes("msme");
   }
   return false;
 }
@@ -1214,6 +1614,121 @@ function buildGeneratedDocument(
         heading: "Advocate review checklist",
         body:
           "Confirm limitation/deadline, preserve all supporting documents, avoid accidental admissions, verify the sender and claim amount, and have an enrolled advocate approve the final reply before dispatch.",
+      },
+    );
+  } else if (workflow.id === "gst_registration") {
+    sections.push(
+      {
+        heading: "GST registration readiness sheet",
+        body: [
+          `Business name: ${get("businessName")}`,
+          `Constitution: ${get("constitution")}`,
+          `State: ${get("state")}`,
+          `PAN: ${get("pan", "Masked or pending")}`,
+          `Principal place of business: ${get("businessAddress")}`,
+          `Authorized signatory: ${get("authorizedSignatory")}`,
+          `Business activity: ${get("businessActivity")}`,
+          `Documents available: ${get("documents")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "GST portal handoff",
+        body:
+          "Use this packet to complete GST portal registration or an authorized ASP/GSP route. Final submission requires applicant authentication, proof upload, declaration, and acknowledgement capture.",
+      },
+    );
+  } else if (workflow.id === "driving_licence_renewal") {
+    sections.push(
+      {
+        heading: "Driving licence renewal packet",
+        body: [
+          `State/RTO route: ${get("state")}`,
+          `Driving licence number: ${get("dlNumber", "Masked or pending")}`,
+          `Date of birth: ${get("dateOfBirth", "Masked or pending")}`,
+          `Expiry date: ${get("expiryDate")}`,
+          `Licence class: ${get("licenceClass")}`,
+          `Address change needed: ${get("addressChange")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "Sarathi handoff",
+        body:
+          "Open the Sarathi portal for the selected state, enter the verified licence details, upload documents, complete CAPTCHA, pay fees, and book/attend any RTO appointment required by the state.",
+      },
+    );
+  } else if (workflow.id === "pan_correction") {
+    sections.push(
+      {
+        heading: "PAN correction packet",
+        body: [
+          `PAN: ${get("pan", "Masked or pending")}`,
+          `Fields to correct: ${get("correctionFields")}`,
+          `Current details: ${get("currentDetails", "Masked or pending")}`,
+          `Correct details: ${get("correctDetails", "Masked or pending")}`,
+          `Proof documents: ${get("proofDocuments")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "Proof mapping",
+        body:
+          "Every correction should be supported by a matching proof document. Complete the official PAN service flow with authentication, payment where applicable, and acknowledgement capture.",
+      },
+    );
+  } else if (workflow.id === "passport_application") {
+    sections.push(
+      {
+        heading: "Passport readiness packet",
+        body: [
+          `Application type: ${get("applicationType")}`,
+          `Applicant details: ${get("applicantDetails", "Masked or pending")}`,
+          `Present address: ${get("address", "Masked or pending")}`,
+          `Old passport details: ${get("oldPassport", "Not applicable or pending")}`,
+          `Documents: ${get("documents")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "Passport Seva handoff",
+        body:
+          "Use the official Passport Seva document advisor, complete portal form entry, pay fees, book an appointment, and carry originals for verification.",
+      },
+    );
+  } else if (workflow.id === "rental_agreement") {
+    sections.push(
+      {
+        heading: "Draft rental agreement brief",
+        body: [
+          `Landlord/licensor: ${get("landlord", "Masked or pending")}`,
+          `Tenant/licensee: ${get("tenant", "Masked or pending")}`,
+          `Property: ${get("property", "Masked or pending")}`,
+          `Rent/deposit: ${get("rentDeposit")}`,
+          `Term and notice: ${get("term")}`,
+          `Special terms: ${get("specialTerms")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "Stamping and registration note",
+        body:
+          "State stamp duty and registration requirements vary. Review local rules before signing, stamping, notarising, or registering the agreement.",
+      },
+    );
+  } else if (workflow.id === "udyam_registration") {
+    sections.push(
+      {
+        heading: "Udyam registration readiness sheet",
+        body: [
+          `Enterprise name: ${get("enterpriseName")}`,
+          `Enterprise type: ${get("enterpriseType")}`,
+          `PAN: ${get("pan", "Masked or pending")}`,
+          `GSTIN: ${get("gstin", "Not available or pending")}`,
+          `Activity: ${get("activity")}`,
+          `Investment and turnover: ${get("investmentTurnover")}`,
+          `Bank/address: ${get("bankAddress", "Masked or pending")}`,
+        ].join("\n"),
+      },
+      {
+        heading: "Udyam portal handoff",
+        body:
+          "Confirm enterprise classification, complete identity/OTP requirements on the official Udyam portal, review declarations, and capture the final acknowledgement.",
       },
     );
   } else {
