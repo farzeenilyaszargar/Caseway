@@ -557,7 +557,7 @@ export default function AssistantPage() {
 
     if (!agentTurn) {
       try {
-        const response = await fetch("/api/chat", {
+        const response = await fetch("/api/chat?stream=1", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -570,10 +570,36 @@ export default function AssistantPage() {
               })),
           }),
         });
-        const data = (await response.json()) as { reply?: string; disclaimer?: string; error?: string };
-        if (!response.ok || !data.reply) throw new Error(data.error || "Chat failed.");
-        const reply = data.reply;
-        setMessages((current) => [...current, { role: "assistant", text: reply }]);
+        if (!response.ok || !response.body) throw new Error("Chat failed.");
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        setMessages((current) => [...current, { role: "assistant", text: "" }]);
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          if (!chunk) continue;
+          setMessages((current) =>
+            current.map((message, index) =>
+              index === current.length - 1 && message.role === "assistant"
+                ? { ...message, text: `${message.text}${chunk}` }
+                : message,
+            ),
+          );
+        }
+
+        const finalChunk = decoder.decode();
+        if (finalChunk) {
+          setMessages((current) =>
+            current.map((message, index) =>
+              index === current.length - 1 && message.role === "assistant"
+                ? { ...message, text: `${message.text}${finalChunk}` }
+                : message,
+            ),
+          );
+        }
       } catch {
         setMessages((current) => [
           ...current,

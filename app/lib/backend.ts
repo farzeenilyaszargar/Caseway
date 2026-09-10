@@ -595,15 +595,13 @@ export function createChatResponse(body: ChatRequest) {
   };
 }
 
-export async function createOpenAIChatResponse(body: ChatRequest) {
+const chatInstructions =
+  "You are Caseway Legal Desk, a flexible Indian legal information chatbot. Answer normal legal questions naturally and directly, without forcing every reply into document collection or filing steps. When the user clearly mentions filing, submission, income tax, ITR, complaints, petitions, notices, court forms, or document upload/submission, shift into a practical intake mindset: identify what workflow they may need, ask only the next useful question, and remind them that final filings or strategy should be reviewed by an enrolled advocate. Do not claim to be a lawyer. Use plain English with occasional Hindi labels only when natural.";
+
+function buildOpenAIChatRequest(body: ChatRequest) {
   const message = body.message?.trim();
   if (!message) {
-    return { ok: false as const, error: badRequest("Message is required.", "message") };
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return createChatResponse(body);
+    return null;
   }
 
   const matterType = body.matterType || inferMatterType(message);
@@ -614,6 +612,45 @@ export async function createOpenAIChatResponse(body: ChatRequest) {
     .slice(-8)
     .map((item) => `${item.role === "user" ? "User" : "Legal Desk"}: ${item.text}`)
     .join("\n");
+  const input = [
+    recentConversation ? `Recent conversation:\n${recentConversation}` : "",
+    `Current user message:\n${message}`,
+    `Detected matter type: ${matterType}`,
+    "Return the most helpful response for the user's actual message. For general doubts, explain clearly. For filing or submission intent, ask focused intake questions and mention relevant documents only when useful.",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  return { input, matterType, message, model, nextSteps, serviceTier };
+}
+
+function createTextStream(text: string) {
+  const encoder = new TextEncoder();
+  const words = text.match(/\S+\s*/g) || [text];
+
+  return new ReadableStream<Uint8Array>({
+    async start(controller) {
+      for (const word of words) {
+        controller.enqueue(encoder.encode(word));
+        await new Promise((resolve) => setTimeout(resolve, 18));
+      }
+      controller.close();
+    },
+  });
+}
+
+export async function createOpenAIChatResponse(body: ChatRequest) {
+  const prepared = buildOpenAIChatRequest(body);
+  if (!prepared) {
+    return { ok: false as const, error: badRequest("Message is required.", "message") };
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return createChatResponse(body);
+  }
+
+  const { input, matterType, message, model, nextSteps, serviceTier } = prepared;
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -624,16 +661,8 @@ export async function createOpenAIChatResponse(body: ChatRequest) {
     body: JSON.stringify({
       model,
       service_tier: serviceTier,
-      instructions:
-        "You are Caseway Legal Desk, a flexible Indian legal information chatbot. Answer normal legal questions naturally and directly, without forcing every reply into document collection or filing steps. When the user clearly mentions filing, submission, income tax, ITR, complaints, petitions, notices, court forms, or document upload/submission, shift into a practical intake mindset: identify what workflow they may need, ask only the next useful question, and remind them that final filings or strategy should be reviewed by an enrolled advocate. Do not claim to be a lawyer. Use plain English with occasional Hindi labels only when natural.",
-      input: [
-        recentConversation ? `Recent conversation:\n${recentConversation}` : "",
-        `Current user message:\n${message}`,
-        `Detected matter type: ${matterType}`,
-        "Return the most helpful response for the user's actual message. For general doubts, explain clearly. For filing or submission intent, ask focused intake questions and mention relevant documents only when useful.",
-      ]
-        .filter(Boolean)
-        .join("\n\n"),
+      instructions: chatInstructions,
+      input,
       max_output_tokens: 700,
     }),
   });
@@ -677,6 +706,92 @@ export async function createOpenAIChatResponse(body: ChatRequest) {
       createdAt: new Date().toISOString(),
     },
   };
+}
+
+export async function createOpenAIChatTextStream(body: ChatRequest) {
+  const prepared = buildOpenAIChatRequest(body);
+  if (!prepared) {
+    return { ok: false as const, error: badRequest("Message is required.", "message") };
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    const fallback = createChatResponse(body);
+    if (!fallback.ok) return fallback;
+    return { ok: true as const, stream: createTextStream(fallback.data.reply) };
+  }
+
+  const { input, model, serviceTier } = prepared;
+  const upstream = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      service_tier: serviceTier,
+      instructions: chatInstructions,
+      input,
+      max_output_tokens: 700,
+      stream: true,
+    }),
+  });
+
+  if (!upstream.ok || !upstream.body) {
+    throw new Error("OpenAI stream failed.");
+  }
+
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const reader = upstream.body?.getReader();
+      if (!reader) {
+        controller.close();
+        return;
+      }
+
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
+
+          for (const part of parts) {
+            const dataLines = part
+              .split("\n")
+              .filter((line) => line.startsWith("data:"))
+              .map((line) => line.replace(/^data:\s?/, "").trim())
+              .filter(Boolean);
+
+            for (const dataLine of dataLines) {
+              if (dataLine === "[DONE]") continue;
+              try {
+                const event = JSON.parse(dataLine) as { type?: string; delta?: string; error?: { message?: string } };
+                if (event.error?.message) throw new Error(event.error.message);
+                if (event.type === "response.output_text.delta" && event.delta) {
+                  controller.enqueue(encoder.encode(event.delta));
+                }
+              } catch {
+                continue;
+              }
+            }
+          }
+        }
+        controller.close();
+      } catch (error) {
+        controller.error(error);
+      } finally {
+        reader.releaseLock();
+      }
+    },
+  });
+
+  return { ok: true as const, stream };
 }
 
 export function createConsultation(body: ConsultationRequest) {
