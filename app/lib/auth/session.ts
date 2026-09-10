@@ -7,9 +7,10 @@ const maxAgeSeconds = 60 * 60 * 8;
 
 export type CasewaySession = {
   id: string;
-  provider: "digilocker";
+  provider: "digilocker" | "mock";
   subject?: string;
   name?: string;
+  email?: string;
   issuedAt: string;
   expiresAt: string;
   accessToken?: string;
@@ -81,6 +82,7 @@ export function publicSession(session: CasewaySession | null) {
     provider: session.provider,
     subject: session.subject,
     name: session.name,
+    email: session.email,
     scope: session.scope,
     issuedAt: session.issuedAt,
     expiresAt: session.expiresAt,

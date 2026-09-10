@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const profileActions = [
   {
     label: "Profile page",
     helper: "Manage account details",
+    href: "/profile",
     icon: (
       <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M20 21a8 8 0 0 0-16 0" strokeLinecap="round" />
@@ -18,6 +20,7 @@ const profileActions = [
   {
     label: "Saved filings",
     helper: "Drafts and submissions",
+    href: "/filings",
     icon: (
       <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M6 3h9l3 3v15H6z" />
@@ -26,8 +29,20 @@ const profileActions = [
     ),
   },
   {
+    label: "Documents",
+    helper: "Vault and uploads",
+    href: "/documents",
+    icon: (
+      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H10l2 2h5.5A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5z" />
+        <path d="M8 12h8M8 16h5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
     label: "Settings",
     helper: "Privacy and notifications",
+    href: "/settings",
     icon: (
       <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
@@ -38,6 +53,7 @@ const profileActions = [
   {
     label: "Log out",
     helper: "End this demo session",
+    logout: true,
     icon: (
       <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M10 17 15 12l-5-5M15 12H3" strokeLinecap="round" strokeLinejoin="round" />
@@ -47,8 +63,42 @@ const profileActions = [
   },
 ];
 
+type PublicSession = {
+  authenticated: boolean;
+  name?: string;
+  email?: string;
+  provider?: string;
+};
+
 export function AppShell({ children, headerAction }: Readonly<{ children: ReactNode; headerAction?: ReactNode }>) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [session, setSession] = useState<PublicSession | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    let ignore = false;
+    async function loadSession() {
+      const response = await fetch("/api/auth/session").catch(() => null);
+      const data = response?.ok ? ((await response.json()) as PublicSession) : { authenticated: false };
+      if (!ignore) setSession(data);
+    }
+
+    void loadSession();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+    setSession({ authenticated: false });
+    setProfileOpen(false);
+    router.push("/login");
+  }
+
+  const isAuthenticated = Boolean(session?.authenticated);
+  const displayName = session?.name || "Farzeen Ilyas";
+  const displayEmail = session?.email || (isAuthenticated ? "Connected account" : "Not signed in");
 
   return (
     <main className="app-canvas flex h-screen flex-col overflow-hidden text-slate-950">
@@ -99,32 +149,65 @@ export function AppShell({ children, headerAction }: Readonly<{ children: ReactN
                     style={{ backgroundImage: "url('https://api.dicebear.com/9.x/notionists/svg?seed=Caseway%20User&backgroundColor=f1f5f9')" }}
                   />
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-950">Farzeen Ilyas</p>
-                    <p className="truncate text-xs font-medium text-slate-500">Demo account</p>
+                    <p className="truncate text-sm font-semibold text-slate-950">{displayName}</p>
+                    <p className="truncate text-xs font-medium text-slate-500">{displayEmail}</p>
                   </div>
                 </div>
                 <div className="mt-1 space-y-1">
-                  {profileActions.map((action) => (
-                    <button
-                      key={action.label}
-                      type="button"
+                  {isAuthenticated ? (
+                    profileActions.map((action) =>
+                      action.logout ? (
+                        <button
+                          key={action.label}
+                          type="button"
+                          role="menuitem"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => void handleLogout()}
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-red-600 transition hover:bg-red-50"
+                        >
+                          <span className="grid h-5 w-5 shrink-0 place-items-center text-current">{action.icon}</span>
+                          <span className="min-w-0">
+                            <span className="block text-sm font-semibold">{action.label}</span>
+                            <span className="block truncate text-xs text-red-300">{action.helper}</span>
+                          </span>
+                        </button>
+                      ) : (
+                        <Link
+                          key={action.label}
+                          href={action.href || "/profile"}
+                          role="menuitem"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => setProfileOpen(false)}
+                          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-slate-700 transition hover:bg-slate-50 hover:text-slate-950"
+                        >
+                          <span className="grid h-5 w-5 shrink-0 place-items-center text-current">{action.icon}</span>
+                          <span className="min-w-0">
+                            <span className="block text-sm font-semibold">{action.label}</span>
+                            <span className="block truncate text-xs text-slate-400">{action.helper}</span>
+                          </span>
+                        </Link>
+                      ),
+                    )
+                  ) : (
+                    <Link
+                      href="/login"
                       role="menuitem"
                       onMouseDown={(event) => event.preventDefault()}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition ${
-                        action.label === "Log out"
-                          ? "text-red-600 hover:bg-red-50"
-                          : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
-                      }`}
+                      onClick={() => setProfileOpen(false)}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-slate-700 transition hover:bg-slate-50 hover:text-slate-950"
                     >
                       <span className="grid h-5 w-5 shrink-0 place-items-center text-current">
-                        {action.icon}
+                        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                          <path d="M15 7l5 5-5 5M20 12H8" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M10 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h3" strokeLinecap="round" />
+                        </svg>
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-sm font-semibold">{action.label}</span>
-                        <span className="block truncate text-xs text-slate-400">{action.helper}</span>
+                        <span className="block text-sm font-semibold">Log in</span>
+                        <span className="block truncate text-xs text-slate-400">Open your Caseway account</span>
                       </span>
-                    </button>
-                  ))}
+                    </Link>
+                  )}
                 </div>
               </div>
             ) : null}
