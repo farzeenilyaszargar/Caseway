@@ -14,6 +14,8 @@ export async function GET() {
       "case-tracking",
       "workflow-tools",
       "document-scan",
+      "digilocker-oauth",
+      "encrypted-session-cookie",
     ],
     timestamp: new Date().toISOString(),
   });
